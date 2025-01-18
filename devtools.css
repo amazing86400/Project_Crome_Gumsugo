@@ -7,6 +7,29 @@
   }
 }
 
+@keyframes fade-scale {
+  0% {
+    transform: scale(0.9);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.1);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes rotate {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
 @keyframes shake {
   0% {
     transform: translateX(0);
@@ -53,20 +76,42 @@ button img {
 
 #play-btn:not(.progress):hover img {
   animation: rotate-infinite 0.4s linear;
+  filter: invert(31%) sepia(96%) saturate(7484%) hue-rotate(210deg) brightness(98%) contrast(105%);
 }
 
 #play-btn.progress img {
   animation: rotate-infinite 1s linear infinite;
+  filter: invert(31%) sepia(96%) saturate(7484%) hue-rotate(210deg) brightness(98%) contrast(105%);
 }
 
 #play-btn.progress:hover img {
   animation: none;
   content: url("./images/stop.png");
+  filter: invert(32%) sepia(77%) saturate(3563%) hue-rotate(331deg) brightness(96%) contrast(101%);
+}
+
+#lock-btn.lock img {
+  filter: invert(66%) sepia(100%) saturate(2376%) hue-rotate(3deg) brightness(102%) contrast(101%);
+}
+
+#lock-btn:hover img {
+  animation: fade-scale 0.3s ease;
+  content: url("./images/lock.png");
+}
+
+#lock-btn.lock:hover img {
+  content: url("./images/open.png");
+}
+
+#lock-btn:not(.lock):hover img {
+  content: url("./images/lock.png");
+  filter: invert(66%) sepia(100%) saturate(2376%) hue-rotate(3deg) brightness(102%) contrast(101%);
 }
 
 #clear-btn:hover img {
   animation: shake 0.5s ease;
   animation-fill-mode: forwards;
+  filter: invert(32%) sepia(77%) saturate(3563%) hue-rotate(331deg) brightness(96%) contrast(101%);
 }
 
 .tool-group {
