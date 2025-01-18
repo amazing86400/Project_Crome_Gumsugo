@@ -1,0 +1,99 @@
+@keyframes rotate-infinite {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes shake {
+  0% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-1.5px);
+  }
+  50% {
+    transform: translateX(1.5px);
+  }
+  75% {
+    transform: translateX(-1.5px);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  margin: 5px;
+  padding: 0px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 20px;
+  height: 20px;
+  position: relative;
+}
+
+button img {
+  width: 20px;
+  height: 20px;
+  transition: transform 0.3s ease;
+}
+
+#play-btn:not(.progress):hover img {
+  animation: rotate-infinite 0.4s linear;
+}
+
+#play-btn.progress img {
+  animation: rotate-infinite 1s linear infinite;
+}
+
+#play-btn.progress:hover img {
+  animation: none;
+  content: url("./images/stop.png");
+}
+
+#clear-btn:hover img {
+  animation: shake 0.5s ease;
+  animation-fill-mode: forwards;
+}
+
+.tool-group {
+  display: flex;
+  align-items: center;
+}
+
+.vertical-divider {
+  width: 1px;
+  height: 16px;
+  background-color: #ccc;
+}
+
+.section-divider {
+  border: none;
+  border-top: 1px solid #a2a2a2;
+  margin: 0px 0px 10px 0px;
+}
+
+.tooltip {
+  position: absolute;
+  background-color: black;
+  color: white;
+  padding: 5px 10px;
+  border-radius: 5px;
+  font-size: 12px;
+  display: none;
+  z-index: 1000;
+  white-space: nowrap;
+}

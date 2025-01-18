@@ -3,27 +3,52 @@ chrome.devtools.panels.create("GubGub", "", "devtools.html", function (panel) {
 });
 
 document.addEventListener("DOMContentLoaded", () => {
-  const toggleButton = document.getElementById("toggle-btn");
-  let isStarted = false; // 상태 플래그: false(Stop 상태), true(Start 상태)
+  const playButton = document.getElementById("play-btn");
+  const playIcon = document.getElementById("play-icon");
+  const tooltip = document.getElementById("tooltip");
+  const buttons = document.querySelectorAll("button[data-tooltip]");
+  let isProgress = false;
 
-  // 버튼 클릭 이벤트
-  toggleButton.addEventListener("click", () => {
-    if (isStarted) {
-      // End 상태로 변경
-      console.log("End 상태");
-      toggleButton.textContent = "Start";
-      isStarted = false;
+  playButton.addEventListener("click", () => {
+    if (isProgress) {
+      console.log("Stopping progress...");
+      playButton.classList.remove("progress");
+      playIcon.src = "./images/play.png";
+      playIcon.alt = "play";
+      playButton.setAttribute("data-tooltip", "Prevent page navigation");
+      isProgress = false;
 
-      // End 동작 수행
-      chrome.runtime.sendMessage({ action: "end" });
+      chrome.runtime.sendMessage({ action: "stop" });
     } else {
-      // Start 상태로 변경
-      console.log("Start 상태");
-      toggleButton.textContent = "End";
-      isStarted = true;
+      console.log("Starting progress...");
+      playButton.classList.add("progress");
+      playIcon.src = "./images/progress.png";
+      playIcon.alt = "progress";
+      playButton.setAttribute("data-tooltip", "Allow page navigation");
+      isProgress = true;
 
-      // Start 동작 수행
-      chrome.runtime.sendMessage({ action: "start" });
+      chrome.runtime.sendMessage({ action: "play" });
     }
+  });
+
+  buttons.forEach((button) => {
+    button.addEventListener("mouseenter", (e) => {
+      const tooltipText = button.getAttribute("data-tooltip");
+      if (tooltipText) {
+        tooltip.textContent = tooltipText;
+        tooltip.style.left = `${e.pageX + 10}px`;
+        tooltip.style.top = `${e.pageY + 10}px`;
+        tooltip.style.display = "block";
+      }
+    });
+
+    button.addEventListener("mousemove", (e) => {
+      tooltip.style.left = `${e.pageX + 10}px`;
+      tooltip.style.top = `${e.pageY + 10}px`;
+    });
+
+    button.addEventListener("mouseleave", () => {
+      tooltip.style.display = "none";
+    });
   });
 });

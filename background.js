@@ -1,6 +1,6 @@
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  if (message.action === "start") {
-    console.log("Start 명령 수신");
+  if (message.action === "play") {
+    console.log("Play 명령 수신");
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
       if (tabs[0].id) {
         chrome.scripting.executeScript({
@@ -9,8 +9,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         });
       }
     });
-  } else if (message.action === "end") {
-    console.log("End 명령 수신");
+  } else if (message.action === "stop") {
+    console.log("Stop 명령 수신");
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
       if (tabs[0].id) {
         chrome.scripting.executeScript({
