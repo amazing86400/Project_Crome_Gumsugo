@@ -16,6 +16,10 @@ document.addEventListener("DOMContentLoaded", () => {
   let isLock = false;
 
   playButton.addEventListener("click", () => {
+    if (isLock) {
+      return;
+    }
+
     if (isProgress) {
       console.log("Stopping progress...");
       playButton.classList.remove("progress");
@@ -23,6 +27,8 @@ document.addEventListener("DOMContentLoaded", () => {
       playIcon.alt = "play";
       playButton.setAttribute("data-tooltip", "Run automated GA4 validation");
       isProgress = false;
+      lockButton.style.pointerEvents = "auto";
+      lockButton.classList.remove("disabled");
     } else {
       console.log("Starting progress...");
       playButton.classList.add("progress");
@@ -30,10 +36,16 @@ document.addEventListener("DOMContentLoaded", () => {
       playIcon.alt = "progress";
       playButton.setAttribute("data-tooltip", "Stop automated GA4 validation");
       isProgress = true;
+      lockButton.style.pointerEvents = "none";
+      lockButton.classList.add("disabled");
     }
   });
 
   lockButton.addEventListener("click", () => {
+    if (isProgress) {
+      return;
+    }
+
     if (isLock) {
       console.log("Open...");
       lockButton.classList.remove("lock");
@@ -41,6 +53,8 @@ document.addEventListener("DOMContentLoaded", () => {
       lockIcon.alt = "open";
       lockButton.setAttribute("data-tooltip", "Prevent page navigation");
       isLock = false;
+      playButton.style.pointerEvents = "auto";
+      playButton.classList.remove("disabled");
 
       chrome.runtime.sendMessage({ action: "open" });
     } else {
@@ -50,6 +64,8 @@ document.addEventListener("DOMContentLoaded", () => {
       lockIcon.alt = "lock";
       lockButton.setAttribute("data-tooltip", "Allow page navigation");
       isLock = true;
+      playButton.style.pointerEvents = "none";
+      playButton.classList.add("disabled");
 
       chrome.runtime.sendMessage({ action: "lock" });
     }

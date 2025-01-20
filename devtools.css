@@ -68,9 +68,23 @@ button {
   position: relative;
 }
 
+button.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+button.disabled img {
+  filter: grayscale(100%);
+  transform: none !important;
+}
+
 button img {
   width: 20px;
   height: 20px;
+  transition: transform 0.3s ease;
+}
+
+button:hover img {
   transition: transform 0.3s ease;
 }
 
@@ -106,6 +120,11 @@ button img {
 #lock-btn:not(.lock):hover img {
   content: url("./images/lock.png");
   filter: invert(66%) sepia(100%) saturate(2376%) hue-rotate(3deg) brightness(102%) contrast(101%);
+}
+
+#lock-btn.disabled:hover img,
+#play-btn.disabled:hover img {
+  transform: none !important;
 }
 
 #clear-btn:hover img {
