@@ -5,15 +5,39 @@ chrome.devtools.panels.create("GubGub", "", "devtools.html", function (panel) {
 document.addEventListener("DOMContentLoaded", () => {
   const playButton = document.getElementById("play-btn");
   const playIcon = document.getElementById("play-icon");
+  let isProgress = false;
 
   const lockButton = document.getElementById("lock-btn");
   const lockIcon = document.getElementById("lock-icon");
+  let isLock = false;
 
   const tooltip = document.getElementById("tooltip");
   const buttons = document.querySelectorAll("button[data-tooltip]");
+  const ga4Container = document.getElementById("ga4-data-container");
 
-  let isProgress = false;
-  let isLock = false;
+  function monitorNetworkRequests() {
+    chrome.devtools.network.onRequestFinished.addListener((request) => {
+      if (request.request.url.includes("collect?v=2")) {
+        const url = new URL(request.request.url);
+        console.log("GA4 Event Captured:", url);
+        const queryParams = new URLSearchParams(url.search);
+        console.log("Query Params:", queryParams);
+
+        const eventType = queryParams.get("en") || "Unknown Event";
+        const eventParams = queryParams.get("ep") || "{}";
+
+        const logEntry = document.createElement("div");
+        logEntry.innerHTML = `
+          <p><strong>Event:</strong> ${eventType}</p>
+          <p><strong>Params:</strong> ${decodeURIComponent(eventParams)}</p>
+          <hr />
+        `;
+        ga4Container.appendChild(logEntry);
+
+        console.log("GA4 Event Captured:", eventType, eventParams);
+      }
+    });
+  }
 
   playButton.addEventListener("click", () => {
     if (isLock) {
@@ -66,6 +90,7 @@ document.addEventListener("DOMContentLoaded", () => {
       isLock = true;
       playButton.style.pointerEvents = "none";
       playButton.classList.add("disabled");
+      monitorNetworkRequests();
 
       chrome.runtime.sendMessage({ action: "lock" });
     }
