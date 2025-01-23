@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "GubGub",
   "version": "1.2",
-  "description": "GA4 이벤트 검수를 위한 크롬 확장 프로그램",
+  "description": "GA4 이벤트 추적 및 검수를 위한 크롬 확장 프로그램",
   "background": {
     "service_worker": "background.js"
   },
@@ -10,6 +10,6 @@
     "default_title": "GubGub"
   },
   "devtools_page": "devtools.html",
-  "permissions": ["scripting", "activeTab"],
+  "permissions": ["scripting", "activeTab", "webRequest"],
   "host_permissions": ["<all_urls>"]
 }
