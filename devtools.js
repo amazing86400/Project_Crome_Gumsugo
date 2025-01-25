@@ -5,18 +5,24 @@ chrome.devtools.panels.create("GubGub", "", "devtools.html", function (panel) {
 chrome.runtime.onMessage.addListener((message) => {
   if (message.action === "ga4_event") {
     const ga4Container = document.getElementById("ga4-data-container");
-    const { eventType, eventParams, postPayload, url } = message.data;
 
-    const logEntry = document.createElement("div");
-    logEntry.innerHTML = `
-        <p><strong>Event:</strong> ${eventType}</p>
-        <p><strong>Params:</strong> ${eventParams}</p>
-        <p><strong>Payload:</strong> ${JSON.stringify(postPayload)}</p>
-        <p><strong>URL:</strong> <a href="${url}" target="_blank">${url}</a></p>
-        <hr />
-    `;
-
-    ga4Container.appendChild(logEntry);
+    message.data.forEach((event) => {
+      const logEntry = document.createElement("div");
+      logEntry.innerHTML = `
+          <p><strong>Property ID:</strong> ${event.tid}</p>
+          <p><strong>Timestamp:</strong> ${event._p}</p>
+          <p><strong>Client ID:</strong> ${event.cid}</p>
+          <p><strong>Session ID:</strong> ${event.sid}</p>
+          <p><strong>Page URL:</strong> ${event.dl}</p>
+          <p><strong>Referrer:</strong> ${event.dr}</p>
+          <p><strong>Page Title:</strong> ${event.dt}</p>
+          <p><strong>Event Name:</strong> ${event.en}</p>
+          <p><strong>Event Parameters:</strong> ${event.ep}</p>
+          <p><strong>User Properties:</strong> ${event.up}</p>
+          <hr />
+      `;
+      ga4Container.appendChild(logEntry);
+    });
   }
 });
 

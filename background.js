@@ -17,25 +17,50 @@ chrome.webRequest.onBeforeRequest.addListener(
     if (!details.url.includes("/g/collect?v=2")) return;
 
     const urlParams = new URL(details.url).searchParams;
-    let postData = {};
+    let postData = [];
 
     if (details.method === "POST" && details.requestBody) {
       if (details.requestBody.formData) {
         postData = details.requestBody.formData;
       } else if (details.requestBody.raw) {
         const decoder = new TextDecoder("utf-8");
-        postData = decoder.decode(details.requestBody.raw[0].bytes);
+        const decodedString = decoder.decode(details.requestBody.raw[0].bytes);
+        postData = new URLSearchParams(decodedString);
       }
+    }
+
+    const extractedData = [];
+    if (postData instanceof URLSearchParams) {
+      extractedData.push({
+        tid: urlParams.get("tid"),
+        _p: urlParams.get("_p"),
+        cid: urlParams.get("cid"),
+        sid: urlParams.get("sid"),
+        dl: urlParams.get("dl"),
+        dr: urlParams.get("dr"),
+        dt: urlParams.get("dt"),
+        en: postData.get("en"),
+        ep: postData.get("ep."),
+        up: postData.get("up."),
+      });
+    } else {
+      extractedData.push({
+        tid: urlParams.get("tid"),
+        _p: urlParams.get("_p"),
+        cid: urlParams.get("cid"),
+        sid: urlParams.get("sid"),
+        dl: urlParams.get("dl"),
+        dr: urlParams.get("dr"),
+        dt: urlParams.get("dt"),
+        en: urlParams.get("en"),
+        ep: urlParams.get("ep."),
+        up: urlParams.get("up."),
+      });
     }
 
     chrome.runtime.sendMessage({
       action: "ga4_event",
-      data: {
-        eventType: urlParams.get("en") || "Unknown Event",
-        eventParams: decodeURIComponent(urlParams.get("ep") || "{}"),
-        postPayload: postData, // Request Payload 데이터 추가
-        url: details.url,
-      },
+      data: extractedData,
     });
   },
   { urls: ["<all_urls>"] },
