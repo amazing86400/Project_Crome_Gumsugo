@@ -19,12 +19,37 @@
         <button id="clear-btn" data-tooltip="Clear captured data">
           <img id="clear-icon" src="./images/delete.png" alt="clear" />
         </button>
+        <div class="vertical-divider"></div>
+        <button id="filter-btn" data-tooltip="Filter">
+          <img id="filter-icon" src="./images/delete.png" alt="filter" />
+        </button>
+        <div class="vertical-divider"></div>
+        <button id="sort-btn" data-tooltip="Sort">
+          <img id="sort-icon" src="./images/delete.png" alt="sort" />
+        </button>
       </div>
     </div>
     <hr class="section-divider" />
     <div class="section data">
       <div>
         <div id="ga4-data-container"></div>
+        <div id="modal" class="modal">
+          <a href="#close" class="modal-overlay"></a>
+          <div class="modal-container">
+            <div>Filter by Account ID</div>
+            <div>Custom Dimension-Event</div>
+            <textarea data-event-type="event"></textarea>
+            <div>Custom Dimension-User</div>
+            <textarea data-event-type="user"></textarea>
+            <div>Custom Metric</div>
+            <textarea data-event-type="metric"></textarea>
+            <div>ecommerce Parameter</div>
+            <textarea data-event-type="ecommerce"></textarea>
+            <div>Item Parameter</div>
+            <textarea data-event-type="item"></textarea>
+            <button id="sort-save" type="button">Save</button>
+          </div>
+        </div>
       </div>
     </div>
 
