@@ -87,6 +87,7 @@ function sortParams(paramArray, sortKeys, prefix) {
     lo: 'location_id',
   };
 
+  sortKeys = sortKeys ?? [];
   const sortedParams = sortKeys.map((key) => {
     const fullKey = `${prefix}${key}`;
     const found = paramArray.find((item) => {
