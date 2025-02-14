@@ -1,3 +1,6 @@
+let isProgress = false;
+let isLock = false;
+
 chrome.devtools.panels.create("GubGub", "", "devtools.html", function (panel) {
   console.log("GubGub DevTools 패널이 생성됨");
 });
@@ -28,134 +31,129 @@ chrome.runtime.onMessage.addListener((message) => {
           <p><strong>Page Title:</strong> ${event.dt}</p>
           <p><strong>Event Name:</strong> ${event.en}</p>
       `;
+  appendEventData(logEntry, event.ep);
+  appendEventData(logEntry, event.epn);
+  appendEventData(logEntry, event.eco);
+  appendProductData(logEntry, event);
+  appendEventData(logEntry, event.up);
+
   ga4Container.appendChild(logEntry);
+});
 
-  event.ep.forEach(({ key, value }) => {
+function appendEventData(container, data) {
+  data?.forEach(({ key, value }) => {
     if (value) {
-      logEntry.insertAdjacentHTML("beforeend", `<p><strong>${key}:</strong> ${value}</p>`);
+      container.insertAdjacentHTML("beforeend", `<p><strong>${key}:</strong> ${value}</p>`);
     }
   });
+}
 
-  event.epn.forEach(({ key, value }) => {
-    if (value) {
-      logEntry.insertAdjacentHTML("beforeend", `<p><strong>${key}:</strong> ${value}</p>`);
-    }
-  });
-
-  event.eco.forEach(({ key, value }) => {
-    if (value) {
-      logEntry.insertAdjacentHTML("beforeend", `<p><strong>${key}:</strong> ${value}</p>`);
-    }
-  });
-
+function appendProductData(container, event) {
   Object.keys(event)
     .filter((key) => key.startsWith("pr"))
     .forEach((key) => {
-      if (Array.isArray(event[key])) {
-        event[key].forEach(({ key: prKey, value }) => {
-          if (value) {
-            logEntry.insertAdjacentHTML("beforeend", `<p><strong>${key} - ${prKey}:</strong> ${value}</p>`);
-          }
-        });
-      }
+      event[key]?.forEach(({ key: prKey, value }) => {
+        if (value) {
+          container.insertAdjacentHTML("beforeend", `<p><strong>${key} - ${prKey}:</strong> ${value}</p>`);
+        }
+      });
     });
-
-  event.up.forEach(({ key, value }) => {
-    if (value) {
-      logEntry.insertAdjacentHTML("beforeend", `<p><strong>${key}:</strong> ${value}</p>`);
-    }
-  });
-  logEntry.insertAdjacentHTML("beforeend", `<hr />`);
-});
+}
 
 document.addEventListener("DOMContentLoaded", () => {
-  const playButton = document.getElementById("play-btn");
-  const playIcon = document.getElementById("play-icon");
-  const lockButton = document.getElementById("lock-btn");
-  const lockIcon = document.getElementById("lock-icon");
-  const clearButton = document.getElementById("clear-btn");
-  const filterButton = document.getElementById("filter-btn");
-  const sortButton = document.getElementById("sort-btn");
-  const modalOverlay = document.querySelector(".modal-overlay");
-  const tooltip = document.getElementById("tooltip");
-  const ga4Container = document.getElementById("ga4-data-container");
-  const sortSave = document.getElementById("sort-save");
+  const elements = {
+    playButton: document.getElementById("play-btn"),
+    playIcon: document.getElementById("play-icon"),
+    lockButton: document.getElementById("lock-btn"),
+    lockIcon: document.getElementById("lock-icon"),
+    clearButton: document.getElementById("clear-btn"),
+    filterButton: document.getElementById("filter-btn"),
+    sortButton: document.getElementById("sort-btn"),
+    modalOverlay: document.querySelector(".modal-overlay"),
+    tooltip: document.getElementById("tooltip"),
+    ga4Container: document.getElementById("ga4-data-container"),
+    sortSave: document.getElementById("sort-save"),
+  };
 
-  let isProgress = false;
-  let isLock = false;
+  elements.playButton.addEventListener("click", () => togglePlay(elements));
+  elements.lockButton.addEventListener("click", () => toggleLock(elements));
+  elements.clearButton.addEventListener("click", () => clearGA4Data(elements.ga4Container));
+  elements.sortButton.addEventListener("click", () => toggleModal(true));
+  elements.modalOverlay.addEventListener("click", () => toggleModal(false));
+  elements.sortSave.addEventListener("click", saveSortOrder);
+  addTooltipListeners(elements.tooltip);
 
-  playButton.addEventListener("click", () => {
-    if (isLock) return;
+  elements.filterButton.addEventListener("click", () => {});
+});
 
-    if (isProgress) {
-      playButton.classList.remove("progress");
-      playIcon.src = "./images/play.png";
-      playIcon.alt = "play";
-      playButton.setAttribute("data-tooltip", "Run automated GA4 validation");
-      isProgress = false;
-      lockButton.style.pointerEvents = "auto";
-      lockButton.classList.remove("disabled");
+function togglePlay({ playButton, playIcon, lockButton }) {
+  if (isLock) return;
+
+  isProgress = !isProgress;
+  playButton.classList.toggle("progress", isProgress);
+  playIcon.src = isProgress ? "./images/progress.png" : "./images/play.png";
+  playIcon.alt = isProgress ? "progress" : "play";
+  playButton.setAttribute("data-tooltip", isProgress ? "Stop automated GA4 validation" : "Run automated GA4 validation");
+
+  lockButton.style.pointerEvents = isProgress ? "none" : "auto";
+  lockButton.classList.toggle("disabled", isProgress);
+}
+
+function toggleLock({ lockButton, lockIcon, playButton }) {
+  if (isProgress) return;
+
+  isLock = !isLock;
+  lockButton.classList.toggle("lock", isLock);
+  lockIcon.src = isLock ? "./images/lock.png" : "./images/open.png";
+  lockIcon.alt = isLock ? "lock" : "open";
+  lockButton.setAttribute("data-tooltip", isLock ? "Allow page navigation" : "Prevent page navigation");
+
+  playButton.style.pointerEvents = isLock ? "none" : "auto";
+  playButton.classList.toggle("disabled", isLock);
+
+  chrome.runtime.sendMessage({ action: isLock ? "lock" : "open" });
+}
+
+function clearGA4Data(container) {
+  const tabId = chrome.devtools.inspectedWindow.tabId;
+
+  chrome.runtime.sendMessage({ action: "clear_tab_data", tabId }, (response) => {
+    if (chrome.runtime.lastError) {
+      console.warn("Background 스크립트와 연결되지 않음");
     } else {
-      playButton.classList.add("progress");
-      playIcon.src = "./images/progress.png";
-      playIcon.alt = "progress";
-      playButton.setAttribute("data-tooltip", "Stop automated GA4 validation");
-      isProgress = true;
-      lockButton.style.pointerEvents = "none";
-      lockButton.classList.add("disabled");
+      console.log(`탭 ${tabId}의 데이터 삭제 완료`);
     }
   });
 
-  lockButton.addEventListener("click", () => {
-    if (isProgress) return;
+  container.innerHTML = "";
+}
 
-    if (isLock) {
-      lockButton.classList.remove("lock");
-      lockIcon.src = "./images/open.png";
-      lockIcon.alt = "open";
-      lockButton.setAttribute("data-tooltip", "Prevent page navigation");
-      isLock = false;
-      playButton.style.pointerEvents = "auto";
-      playButton.classList.remove("disabled");
+function toggleModal(open) {
+  document.getElementById("modal").classList.toggle("open", open);
+}
 
-      chrome.runtime.sendMessage({ action: "open" });
-    } else {
-      lockButton.classList.add("lock");
-      lockIcon.src = "./images/lock.png";
-      lockIcon.alt = "lock";
-      lockButton.setAttribute("data-tooltip", "Allow page navigation");
-      isLock = true;
-      playButton.style.pointerEvents = "none";
-      playButton.classList.add("disabled");
+function saveSortOrder() {
+  const eventParams = document.querySelector('textarea[data-event-type="event"]').value.split("\n");
+  const userParams = document.querySelector('textarea[data-event-type="user"]').value.split("\n");
+  const metricParams = document.querySelector('textarea[data-event-type="metric"]').value.split("\n");
+  const ecommerceParams = document.querySelector('textarea[data-event-type="ecommerce"]').value.split("\n");
+  const itemParams = document.querySelector('textarea[data-event-type="item"]').value.split("\n");
 
-      chrome.runtime.sendMessage({ action: "lock" });
-    }
-  });
+  const cleanArray = (arr) => arr.filter(Boolean);
 
-  clearButton.addEventListener("click", () => {
-    const tabId = chrome.devtools.inspectedWindow.tabId;
+  const cleanedSortObj = {
+    eventParam: cleanArray(eventParams),
+    metricParam: cleanArray(metricParams),
+    userParam: cleanArray(userParams),
+    ecommerceParam: cleanArray(ecommerceParams),
+    itemParam: cleanArray(itemParams),
+  };
 
-    chrome.runtime.sendMessage({ action: "clear_tab_data", tabId }, (response) => {
-      if (chrome.runtime.lastError) {
-        console.warn("Background 스크립트와 연결되지 않음.");
-      } else {
-        console.log(`탭 ${tabId}의 데이터 삭제 완료`);
-      }
-    });
+  chrome.runtime.sendMessage({ action: "setSortOrder", cleanedSortObj });
+  console.log("정렬 옵션 저장 완료", cleanedSortObj);
+}
 
-    ga4Container.innerHTML = "";
-  });
-
-  filterButton.addEventListener("click", () => {});
-
-  sortButton.addEventListener("click", () => {
-    document.getElementById("modal").classList.add("open");
-  });
-
-  modalOverlay.addEventListener("click", () => {
-    document.getElementById("modal").classList.remove("open");
-  });
-
+function addTooltipListeners(tooltip) {
   document.body.addEventListener("mouseover", (e) => {
     const button = e.target.closest("button[data-tooltip]");
     if (button) {
@@ -169,32 +167,4 @@ document.addEventListener("DOMContentLoaded", () => {
   document.body.addEventListener("mouseout", () => {
     tooltip.style.display = "none";
   });
-
-  sortSave.addEventListener("click", () => {
-    const eventParams = document.querySelector('textarea[data-event-type="event"]').value.split("\n");
-    const userParams = document.querySelector('textarea[data-event-type="user"]').value.split("\n");
-    const metricParams = document.querySelector('textarea[data-event-type="metric"]').value.split("\n");
-    const ecommerceParams = document.querySelector('textarea[data-event-type="ecommerce"]').value.split("\n");
-    const itemParams = document.querySelector('textarea[data-event-type="item"]').value.split("\n");
-    const sortObj = {
-      eventParam: eventParams,
-      metricParam: metricParams,
-      userParam: userParams,
-      ecommerceParam: ecommerceParams,
-      itemParam: itemParams,
-    };
-    const removeEmptyValues = (arr) => arr.filter(Boolean);
-
-    const cleanedSortObj = {
-      eventParam: removeEmptyValues(sortObj.eventParam),
-      metricParam: removeEmptyValues(sortObj.metricParam),
-      userParam: removeEmptyValues(sortObj.userParam),
-      ecommerceParam: removeEmptyValues(sortObj.ecommerceParam),
-      itemParam: removeEmptyValues(sortObj.itemParam),
-    };
-
-    chrome.runtime.sendMessage({ action: "setSortOrder", cleanedSortObj });
-    console.log("Success");
-    console.log(cleanedSortObj);
-  });
-});
+}

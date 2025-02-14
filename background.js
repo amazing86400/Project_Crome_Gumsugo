@@ -14,9 +14,23 @@ chrome.runtime.onConnect.addListener((port) => {
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (!message.action) return;
 
+  if (message.action === "clear_tab_data") {
+    const { tabId } = message;
+    if (tabRequestData[tabId]) {
+      delete tabRequestData[tabId];
+      console.log(`탭 ${tabId}의 데이터 삭제 완료`);
+      sendResponse({ success: true });
+    } else {
+      console.warn(`탭 ${tabId}의 데이터가 존재하지 않음`);
+      sendResponse({ success: false });
+    }
+    return;
+  }
+
   chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-    const tabId = tabs[0]?.id;
-    if (!tabId) return;
+    if (!tabs.length) return;
+
+    const tabId = tabs[0].id;
 
     switch (message.action) {
       case "lock":
@@ -32,16 +46,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
           sortObj = message.cleanedSortObj;
         }
         break;
-      case "clear_tab_data":
-        const { tabId } = message;
-        if (tabRequestData[tabId]) {
-          delete tabRequestData[tabId];
-          console.log(`탭 ${tabId}의 데이터 삭제 완료`);
-          sendResponse({ success: true });
-        } else {
-          console.warn(`탭 ${tabId}의 데이터가 존재하지 않음`);
-          sendResponse({ success: false });
-        }
     }
   });
 
