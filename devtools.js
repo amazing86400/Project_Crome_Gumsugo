@@ -8,7 +8,7 @@ chrome.devtools.panels.create("GubGub", "", "devtools.html", function (panel) {
 const port = chrome.runtime.connect({ name: "devtools" });
 
 port.onDisconnect.addListener(() => {
-  console.warn("DevTools 패널이 닫혔으므로 메시지 전송을 중단합니다.");
+  console.log("DevTools 패널이 닫혔으므로 메시지 전송을 중단합니다.");
 });
 
 chrome.runtime.onMessage.addListener((message) => {
@@ -17,47 +17,150 @@ chrome.runtime.onMessage.addListener((message) => {
   const ga4Container = document.getElementById("ga4-data-container");
   const event = message.data;
 
-  const logEntry = document.createElement("div");
-  logEntry.classList.add("data-wrap", "view");
-  logEntry.setAttribute("data-account", event.tid);
+  const requestEntry = document.createElement("div");
+  requestEntry.classList.add("ga4-request");
 
-  logEntry.innerHTML = `
-          <p><strong>Property ID:</strong> ${event.tid}</p>
-          <p><strong>Timestamp:</strong> ${event._p}</p>
-          <p><strong>Client ID:</strong> ${event.cid}</p>
-          <p><strong>Session ID:</strong> ${event.sid}</p>
-          <p><strong>Page URL:</strong> ${event.dl}</p>
-          <p><strong>Referrer:</strong> ${event.dr}</p>
-          <p><strong>Page Title:</strong> ${event.dt}</p>
-          <p><strong>Event Name:</strong> ${event.en}</p>
-      `;
-  appendEventData(logEntry, event.ep);
-  appendEventData(logEntry, event.epn);
-  appendEventData(logEntry, event.eco);
-  appendProductData(logEntry, event);
-  appendEventData(logEntry, event.up);
+  requestEntry.innerHTML = `
+    <p><strong>Event Name:</strong> ${event.en} <span style="font-size:12px;color:#888;">(Click to expand)</span></p>
+  `;
 
-  ga4Container.appendChild(logEntry);
-});
+  const details = document.createElement("div");
+  details.classList.add("ga4-details");
 
-function appendEventData(container, data) {
-  data?.forEach(({ key, value }) => {
-    if (value) {
-      container.insertAdjacentHTML("beforeend", `<p><strong>${key}:</strong> ${value}</p>`);
+  const basicInfo = [
+    { key: "GA4 속성 ID", value: event.tid },
+    { key: "타임스탬프", value: event._p },
+    { key: "Client ID", value: event.cid },
+    { key: "Session ID", value: event.sid },
+    { key: "현재 페이지 URL", value: event.dl },
+    { key: "이전 페이지 URL", value: event.dr },
+    { key: "페이지 제목", value: event.dt },
+    { key: "이벤트 이름", value: event.en },
+  ];
+  const basicInfoSection = createSublist("기본 정보", basicInfo);
+  if (basicInfoSection) details.appendChild(basicInfoSection);
+
+  const dataSections = [
+    { title: "맞춤 측정기준", data: event.ep },
+    { title: "맞춤 측정항목", data: event.epn },
+    { title: "거래 정보", data: event.eco },
+    { title: "사용자 속성", data: event.up },
+  ];
+
+  dataSections.forEach(({ title, data }) => {
+    if (Array.isArray(data) && data.length > 0) {
+      const section = createSublist(title, data);
+      if (section) details.appendChild(section);
     }
   });
+
+  const productData = Object.keys(event)
+    .filter((key) => key.startsWith("pr"))
+    .flatMap((key) => event[key] || []);
+
+  if (productData.length > 0) {
+    const productInfoSection = createSublist("상품 정보", productData);
+    if (productInfoSection) details.appendChild(productInfoSection);
+  }
+
+  requestEntry.appendChild(details);
+  ga4Container.appendChild(requestEntry);
+
+  requestEntry.addEventListener("click", (e) => {
+    if (!e.target.closest(".ga4-sublist-title")) {
+      requestEntry.classList.toggle("expanded");
+    }
+  });
+});
+
+function createTable(data) {
+  if (!data || (Array.isArray(data) && data.length === 0)) return null;
+
+  const table = document.createElement("table");
+  table.classList.add("ga4-table");
+
+  const thead = document.createElement("thead");
+  thead.innerHTML = `
+    <tr>
+      <th>Key</th>
+      <th>Value</th>
+    </tr>
+  `;
+
+  const tbody = document.createElement("tbody");
+
+  data.forEach(({ key, value }) => {
+    if (value) {
+      const row = document.createElement("tr");
+      row.innerHTML = `<td>${key}</td><td>${value}</td>`;
+      tbody.appendChild(row);
+    }
+  });
+
+  table.appendChild(thead);
+  table.appendChild(tbody);
+
+  table.addEventListener("click", (e) => e.stopPropagation());
+
+  return table;
 }
 
+function createSublist(title, data, formatter) {
+  if (!data || (Array.isArray(data) && data.length === 0)) return null;
+
+  const sublist = document.createElement("div");
+  sublist.classList.add("ga4-sublist", "expanded");
+
+  const sublistTitle = document.createElement("div");
+  sublistTitle.classList.add("ga4-sublist-title");
+  sublistTitle.textContent = title;
+  sublist.appendChild(sublistTitle);
+
+  const sublistContent = document.createElement("div");
+  sublistContent.classList.add("ga4-sublist-content");
+
+  if (formatter) {
+    formatter(sublistContent, data);
+  } else {
+    const table = createTable(data);
+    if (table) sublistContent.appendChild(table);
+  }
+
+  sublist.appendChild(sublistContent);
+
+  sublistContent.addEventListener("click", (e) => e.stopPropagation());
+
+  sublistTitle.addEventListener("click", (e) => {
+    e.stopPropagation();
+    sublist.classList.toggle("expanded");
+  });
+
+  return sublist;
+}
+
+// function appendProductData(container, event) {
+//   let productData = [];
+//   Object.keys(event)
+//     .filter((key) => key.startsWith("pr"))
+//     .forEach((key) => {
+//       event[key]?.forEach(({ key: prKey, value }) => {
+//         if (value) {
+//           productData.push({ key: `${key} - ${prKey}`, value });
+//         }
+//       });
+//     });
+
+//   const table = createTable(productData);
+//   if (table) container.innerHTML = table;
+// }
+
 function appendProductData(container, event) {
-  Object.keys(event)
+  const productData = Object.keys(event)
     .filter((key) => key.startsWith("pr"))
-    .forEach((key) => {
-      event[key]?.forEach(({ key: prKey, value }) => {
-        if (value) {
-          container.insertAdjacentHTML("beforeend", `<p><strong>${key} - ${prKey}:</strong> ${value}</p>`);
-        }
-      });
-    });
+    .flatMap((key) => event[key] || []);
+
+  const table = createTable(productData);
+  if (table) container.appendChild(table);
 }
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -119,7 +222,7 @@ function clearGA4Data(container) {
 
   chrome.runtime.sendMessage({ action: "clear_tab_data", tabId }, (response) => {
     if (chrome.runtime.lastError) {
-      console.warn("Background 스크립트와 연결되지 않음");
+      console.log("Background 스크립트와 연결되지 않음");
     } else {
       console.log(`탭 ${tabId}의 데이터 삭제 완료`);
     }

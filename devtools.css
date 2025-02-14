@@ -231,11 +231,88 @@ button svg:hover g {
   white-space: nowrap;
 }
 
-#ga4-data-container {
-  overflow-y: auto;
+.ga4-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  margin-top: 5px;
+  background: #fff;
+}
+
+.ga4-table th,
+.ga4-table td {
+  border: 1px solid #ddd;
+  padding: 5px;
+  text-align: left;
+  word-wrap: break-word;
+  overflow: hidden;
+  /* white-space: nowrap; */
+}
+
+.ga4-table th:nth-child(1),
+.ga4-table td:nth-child(1) {
+  width: 25%;
+}
+
+.ga4-table th:nth-child(2),
+.ga4-table td:nth-child(2) {
+  width: 75%;
+}
+
+.ga4-table th {
+  background: #f1f1f1;
+  font-weight: bold;
+}
+
+.ga4-table tr:nth-child(even) {
+  background: #f9f9f9;
+}
+
+.ga4-request {
   border: 1px solid #ccc;
+  background: #fff;
   padding: 10px;
-  background-color: #f9f9f9;
+  margin-bottom: 5px;
+  cursor: pointer;
+}
+
+.ga4-request:hover {
+  background: #f1f1f1;
+}
+
+.ga4-details {
+  display: none;
+  padding: 10px;
+  border-top: 1px solid #ddd;
+  background: #f9f9f9;
+}
+
+.ga4-request.expanded .ga4-details {
+  display: block;
+}
+
+.ga4-sublist {
+  margin-top: 5px;
+  padding: 5px;
+  border: 1px solid #ddd;
+  background: #fff;
+}
+
+.ga4-sublist-title {
+  font-weight: bold;
+  cursor: pointer;
+  padding: 5px;
+  background: #f1f1f1;
+  border-bottom: 1px solid #ccc;
+}
+
+.ga4-sublist-content {
+  display: none;
+  padding: 5px;
+}
+
+.ga4-sublist.expanded .ga4-sublist-content {
+  display: block;
 }
 
 .modal {

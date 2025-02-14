@@ -6,7 +6,7 @@ chrome.runtime.onConnect.addListener((port) => {
     console.log("DevTools 패널이 연결됨");
 
     port.onDisconnect.addListener(() => {
-      console.warn("DevTools 패널이 닫힘");
+      console.log("DevTools 패널이 닫힘");
     });
   }
 });
@@ -21,7 +21,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       console.log(`탭 ${tabId}의 데이터 삭제 완료`);
       sendResponse({ success: true });
     } else {
-      console.warn(`탭 ${tabId}의 데이터가 존재하지 않음`);
+      console.log(`탭 ${tabId}의 데이터가 존재하지 않음`);
       sendResponse({ success: false });
     }
     return;
@@ -91,7 +91,7 @@ chrome.webRequest.onBeforeRequest.addListener(
       }
     });
 
-    extractedData.eco.push({ key: "currency", value: urlParams.get("cu") });
+    if (urlParams.get("cu")) extractedData.eco.push({ key: "currency", value: urlParams.get("cu") });
     extractedData.ep = sortParams(extractedData.ep, sortObj.eventParam, "ep.");
     extractedData.epn = sortParams(extractedData.epn, sortObj.metricParam, "epn.");
     extractedData.eco = sortParams(extractedData.eco, sortObj.ecommerceParam);
@@ -108,7 +108,7 @@ chrome.webRequest.onBeforeRequest.addListener(
       },
       (response) => {
         if (chrome.runtime.lastError) {
-          console.warn("DevTools 패널이 닫혀 있어 메시지를 보낼 수 없음");
+          console.log("DevTools 패널이 닫혀 있어 메시지를 보낼 수 없음");
         }
       }
     );
