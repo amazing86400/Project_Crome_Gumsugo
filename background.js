@@ -24,6 +24,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       console.log(`탭 ${tabId}의 데이터가 존재하지 않음`);
       sendResponse({ success: false });
     }
+
     return;
   }
 
@@ -145,6 +146,19 @@ function setParams(searchParam, type, isEcommerce = false) {
 }
 
 function sortParams(paramArray, sortKeys = [], prefix = "") {
+  const sortedParams = sortKeys.map((key) => {
+    const fullKey = `${prefix}${key}`;
+    const found = paramArray.find((item) => item.key === fullKey);
+
+    return found ? { key: found.key, value: found.value } : { key: fullKey, value: undefined };
+  });
+
+  const remainingParams = paramArray.filter((item) => !sortKeys.includes(item.key.replace(prefix, "")));
+
+  return [...sortedParams, ...remainingParams];
+}
+
+function parseProductString(productString) {
   const convertItem = {
     id: "item_id",
     nm: "item_name",
@@ -166,19 +180,6 @@ function sortParams(paramArray, sortKeys = [], prefix = "") {
     lo: "location_id",
   };
 
-  const sortedParams = sortKeys.map((key) => {
-    const fullKey = `${prefix}${key}`;
-    const found = paramArray.find((item) => (convertItem[item.key] || item.key) === fullKey);
-
-    return found ? { key: convertItem[found.key] || found.key, value: found.value } : { key: fullKey, value: undefined };
-  });
-
-  const remainingParams = paramArray.filter((item) => !sortKeys.includes((convertItem[item.key] || item.key).replace(prefix, "")));
-
-  return [...sortedParams, ...remainingParams];
-}
-
-function parseProductString(productString) {
   const parts = productString.split("~");
   const result = [];
   let lastKey = "";
@@ -190,13 +191,13 @@ function parseProductString(productString) {
     if (key.startsWith("k")) {
       lastKey = value;
     } else if (key.startsWith("v") && lastKey) {
-      result.push({ key: lastKey, value });
+      result.push({ key: convertItem[lastKey] || lastKey, value });
       lastKey = "";
       // 실제로 string으로 수집할 경우 어떡하지?
     } else if (["lp", "qt", "pr", "ds"].includes(key)) {
-      result.push({ key, value: Number(value) });
+      result.push({ key: convertItem[key] || key, value: Number(value) });
     } else {
-      result.push({ key, value });
+      result.push({ key: convertItem[key] || key, value });
     }
   });
 

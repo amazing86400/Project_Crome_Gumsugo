@@ -48,6 +48,18 @@
   }
 }
 
+@keyframes tiltAnimation {
+  0% {
+    transform: rotate(0deg);
+  }
+  50% {
+    transform: rotate(15deg);
+  }
+  100% {
+    transform: rotate(-18deg);
+  }
+}
+
 @keyframes moveDown {
   0% {
     transform: translateY(-2px);
@@ -167,7 +179,7 @@ button:hover img {
 }
 
 #filter-btn:hover img {
-  transform: rotate(15deg);
+  animation: tiltAnimation 0.4s ease-in-out;
   filter: invert(16%) sepia(100%) saturate(7000%) hue-rotate(270deg) brightness(85%) contrast(105%);
 }
 
@@ -231,6 +243,21 @@ button svg:hover g {
   white-space: nowrap;
 }
 
+.copy-tooltip {
+  display: none;
+  position: absolute;
+  background: black;
+  color: white;
+  padding: 5px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  white-space: nowrap;
+  bottom: -25px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+}
+
 .ga4-table {
   width: 100%;
   border-collapse: collapse;
@@ -291,6 +318,55 @@ button svg:hover g {
   display: block;
 }
 
+.ga4-request-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  /* width: 100%; */
+  padding: 8px 12px;
+  border-bottom: 1px solid #ddd;
+  font-size: 14px;
+  background: #fff;
+}
+
+.ga4-event-name {
+  flex: 3;
+  text-align: left;
+  font-weight: bold;
+}
+
+.ga4-property-id {
+  flex: 2;
+  text-align: center;
+  color: #555;
+}
+
+.ga4-event-time {
+  flex: 3;
+  text-align: right;
+  color: #777;
+}
+
+.copy-btn-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.copy-btn {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  opacity: 0.7;
+  transition: opacity 0.2s ease-in-out;
+  position: relative;
+}
+
+.copy-btn:hover {
+  opacity: 1;
+}
+
 .ga4-sublist {
   margin-top: 5px;
   padding: 5px;
@@ -299,11 +375,15 @@ button svg:hover g {
 }
 
 .ga4-sublist-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   font-weight: bold;
-  cursor: pointer;
+  /* cursor: pointer; */
   padding: 5px;
   background: #f1f1f1;
   border-bottom: 1px solid #ccc;
+  position: relative;
 }
 
 .ga4-sublist-content {

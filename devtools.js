@@ -20,9 +20,43 @@ chrome.runtime.onMessage.addListener((message) => {
   const requestEntry = document.createElement("div");
   requestEntry.classList.add("ga4-request");
 
+  function getKoreaTime() {
+    const now = new Date();
+    now.setHours(now.getHours());
+    return now.toLocaleString("ko-KR", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      weekday: "short",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+    });
+  }
+
   requestEntry.innerHTML = `
-    <p><strong>Event Name:</strong> ${event.en} <span style="font-size:12px;color:#888;">(Click to expand)</span></p>
+    <div class="ga4-request-row">
+      <span class="ga4-event-name">${event.en}</span>
+      <span class="ga4-property-id">${event.tid}</span>
+      <span class="ga4-event-time">${getKoreaTime()}</span>
+      <div class="copy-btn-container">
+      <img src="./images/copy_value.png" class="copy-btn" alt="Copy Values" title="값만 복사" />
+      <img src="./images/copy_all.png" class="copy-btn" alt="Copy All" title="전체 복사" />
+      </div>
+    </div>
   `;
+
+  const copyButtons = requestEntry.querySelectorAll(".copy-btn");
+
+  copyButtons[0].addEventListener("click", (e) => {
+    e.stopPropagation();
+    copyToClipboard(formatFullEventData(event, true));
+  });
+
+  copyButtons[1].addEventListener("click", (e) => {
+    e.stopPropagation();
+    copyToClipboard(formatFullEventData(event, false));
+  });
 
   const details = document.createElement("div");
   details.classList.add("ga4-details");
@@ -54,12 +88,8 @@ chrome.runtime.onMessage.addListener((message) => {
     }
   });
 
-  const productData = Object.keys(event)
-    .filter((key) => key.startsWith("pr"))
-    .flatMap((key) => event[key] || []);
-
-  if (productData.length > 0) {
-    const productInfoSection = createSublist("상품 정보", productData);
+  if (event["pr1"]) {
+    const productInfoSection = createSublist("상품 정보", event, appendProductData);
     if (productInfoSection) details.appendChild(productInfoSection);
   }
 
@@ -72,6 +102,81 @@ chrome.runtime.onMessage.addListener((message) => {
     }
   });
 });
+
+function formatFullEventData(event, valuesOnly) {
+  let result = [];
+
+  result.push("📌 기본 정보");
+  result.push(...eventToFormattedArray(event, ["tid", "_p", "cid", "sid", "dl", "dr", "dt", "en"], valuesOnly));
+
+  const categories = {
+    "맞춤 측정기준": event.ep,
+    "맞춤 측정항목": event.epn,
+    "거래 정보": event.eco,
+    "사용자 속성": event.up,
+  };
+
+  for (const [category, data] of Object.entries(categories)) {
+    if (Array.isArray(data) && data.length > 0) {
+      result.push(`📌 ${category}`);
+      result.push(...data.map(({ key, value }) => (valuesOnly ? value : `${key}\t${value}`)));
+    }
+  }
+
+  if (event["pr1"]) {
+    result.push("📌 상품 정보");
+    Object.keys(event)
+      .filter((key) => key.startsWith("pr"))
+      .forEach((key, index) => {
+        result.push(`상품 ${index + 1}`);
+        result.push(
+          ...event[key].map((product) =>
+            Object.entries(product)
+              .map(([k, v]) => (valuesOnly ? v : `${k}\t${v}`))
+              .join("\n")
+          )
+        );
+      });
+  }
+
+  return result.join("\n");
+}
+
+function copyToClipboard(text) {
+  const textarea = document.createElement("textarea");
+  textarea.value = text;
+  document.body.appendChild(textarea);
+  textarea.select();
+  document.execCommand("copy");
+  document.body.removeChild(textarea);
+  showCopyNotification("데이터가 클립보드에 복사되었습니다2");
+}
+
+function copyCategoryData(categoryClass, valuesOnly) {
+  const rows = document.querySelectorAll(`.${categoryClass} .ga4-sublist-content tr`);
+  if (!rows.length) {
+    showCopyNotification("복사할 데이터가 없습니다.");
+    return;
+  }
+
+  let copiedData = [];
+
+  rows.forEach((row) => {
+    const cells = row.querySelectorAll("td");
+    if (cells.length < 2) return;
+
+    const key = cells[0].innerText.trim();
+    const value = cells[1].innerText.trim();
+
+    copiedData.push(valuesOnly ? value : `${key}\t${value}`);
+  });
+
+  copyToClipboard(copiedData.join("\n"));
+}
+
+function showCopyNotification(message) {
+  alert(message);
+}
 
 function createTable(data) {
   if (!data || (Array.isArray(data) && data.length === 0)) return null;
@@ -109,11 +214,59 @@ function createSublist(title, data, formatter) {
   if (!data || (Array.isArray(data) && data.length === 0)) return null;
 
   const sublist = document.createElement("div");
-  sublist.classList.add("ga4-sublist", "expanded");
+  sublist.classList.add("ga4-sublist", "expanded", `category-${title.replace(/\s+/g, "-").toLowerCase()}`);
 
   const sublistTitle = document.createElement("div");
   sublistTitle.classList.add("ga4-sublist-title");
-  sublistTitle.textContent = title;
+
+  const titleText = document.createElement("span");
+  titleText.textContent = title;
+
+  const buttonContainer = document.createElement("div");
+  buttonContainer.classList.add("copy-btn-container");
+
+  const copyAllButton = document.createElement("img");
+  copyAllButton.src = "./images/copy_all.png";
+  copyAllButton.classList.add("copy-btn");
+  copyAllButton.alt = "Copy All";
+
+  const copyValuesButton = document.createElement("img");
+  copyValuesButton.src = "./images/copy_value.png";
+  copyValuesButton.classList.add("copy-btn");
+  copyValuesButton.alt = "Copy Values";
+
+  const tooltipAll = document.createElement("span");
+  tooltipAll.classList.add("copy-tooltip");
+  tooltipAll.textContent = "전체 복사";
+
+  const tooltipValues = document.createElement("span");
+  tooltipValues.classList.add("copy-tooltip");
+  tooltipValues.textContent = "값만 복사";
+
+  copyAllButton.addEventListener("mouseenter", () => (tooltipAll.style.display = "inline"));
+  copyAllButton.addEventListener("mouseleave", () => (tooltipAll.style.display = "none"));
+
+  copyValuesButton.addEventListener("mouseenter", () => (tooltipValues.style.display = "inline"));
+  copyValuesButton.addEventListener("mouseleave", () => (tooltipValues.style.display = "none"));
+
+  copyAllButton.addEventListener("click", (e) => {
+    e.stopPropagation();
+    copyCategoryData(`category-${title.replace(/\s+/g, "-").toLowerCase()}`, false);
+  });
+
+  copyValuesButton.addEventListener("click", (e) => {
+    e.stopPropagation();
+    copyCategoryData(`category-${title.replace(/\s+/g, "-").toLowerCase()}`, true);
+  });
+
+  buttonContainer.appendChild(copyValuesButton);
+  buttonContainer.appendChild(tooltipValues);
+  buttonContainer.appendChild(copyAllButton);
+  buttonContainer.appendChild(tooltipAll);
+
+  sublistTitle.appendChild(titleText);
+  sublistTitle.appendChild(buttonContainer);
+
   sublist.appendChild(sublistTitle);
 
   const sublistContent = document.createElement("div");
@@ -129,7 +282,6 @@ function createSublist(title, data, formatter) {
   sublist.appendChild(sublistContent);
 
   sublistContent.addEventListener("click", (e) => e.stopPropagation());
-
   sublistTitle.addEventListener("click", (e) => {
     e.stopPropagation();
     sublist.classList.toggle("expanded");
@@ -138,29 +290,39 @@ function createSublist(title, data, formatter) {
   return sublist;
 }
 
-// function appendProductData(container, event) {
-//   let productData = [];
-//   Object.keys(event)
-//     .filter((key) => key.startsWith("pr"))
-//     .forEach((key) => {
-//       event[key]?.forEach(({ key: prKey, value }) => {
-//         if (value) {
-//           productData.push({ key: `${key} - ${prKey}`, value });
-//         }
-//       });
-//     });
-
-//   const table = createTable(productData);
-//   if (table) container.innerHTML = table;
-// }
-
 function appendProductData(container, event) {
-  const productData = Object.keys(event)
+  const productKeys = Object.keys(event)
     .filter((key) => key.startsWith("pr"))
-    .flatMap((key) => event[key] || []);
+    .sort();
 
-  const table = createTable(productData);
-  if (table) container.appendChild(table);
+  if (!productKeys.length) return;
+
+  productKeys.forEach((key, index) => {
+    const productData = event[key];
+    if (!productData || !Array.isArray(productData) || productData.length === 0) return;
+
+    const productEntry = document.createElement("div");
+    productEntry.classList.add("ga4-sublist", "expanded");
+
+    const productTitle = document.createElement("div");
+    productTitle.classList.add("ga4-sublist-title");
+    productTitle.textContent = `상품 ${index + 1}`;
+    productEntry.appendChild(productTitle);
+
+    const productContent = document.createElement("div");
+    productContent.classList.add("ga4-sublist-content");
+
+    const table = createTable(productData);
+    if (table) productContent.appendChild(table);
+
+    productEntry.appendChild(productContent);
+    container.appendChild(productEntry);
+
+    productTitle.addEventListener("click", (e) => {
+      e.stopPropagation();
+      productEntry.classList.toggle("expanded");
+    });
+  });
 }
 
 document.addEventListener("DOMContentLoaded", () => {
