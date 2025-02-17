@@ -20,28 +20,30 @@ chrome.runtime.onMessage.addListener((message) => {
   const requestEntry = document.createElement("div");
   requestEntry.classList.add("ga4-request");
 
-  function getKoreaTime() {
+  function getTimestamp() {
     const now = new Date();
     now.setHours(now.getHours());
-    return now.toLocaleString("ko-KR", {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-      weekday: "short",
-      hour: "2-digit",
-      minute: "2-digit",
-      second: "2-digit",
-    });
+
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, "0");
+    const day = String(now.getDate()).padStart(2, "0");
+    const weekday = now.toLocaleDateString("en-US", { weekday: "short" });
+    const hours = String(now.getHours() % 12 || 12).padStart(2, "0");
+    const minutes = String(now.getMinutes()).padStart(2, "0");
+    const seconds = String(now.getSeconds()).padStart(2, "0");
+    const ampm = now.getHours() < 12 || now.getHours() === 24 ? "AM" : "PM";
+
+    return `${year}.${month}.${day}, ${weekday}, ${hours}:${minutes}:${seconds} ${ampm}`;
   }
 
   requestEntry.innerHTML = `
     <div class="ga4-request-row">
       <span class="ga4-event-name">${event.en}</span>
       <span class="ga4-property-id">${event.tid}</span>
-      <span class="ga4-event-time">${getKoreaTime()}</span>
+      <span class="ga4-event-time">${getTimestamp()}</span>
       <div class="copy-btn-container">
-      <img src="./images/copy_value.png" class="copy-btn" alt="Copy Values" title="값만 복사" />
-      <img src="./images/copy_all.png" class="copy-btn" alt="Copy All" title="전체 복사" />
+      <img src="./images/copy_value.png" class="copy-btn" alt="Copy Values" title="Copy values" />
+      <img src="./images/copy_all.png" class="copy-btn" alt="Copy All" title="Copy all" />
       </div>
     </div>
   `;
@@ -62,23 +64,23 @@ chrome.runtime.onMessage.addListener((message) => {
   details.classList.add("ga4-details");
 
   const basicInfo = [
-    { key: "GA4 속성 ID", value: event.tid },
-    { key: "타임스탬프", value: event._p },
+    { key: "GA4 Property ID", value: event.tid },
+    { key: "Timestamp", value: event._p },
     { key: "Client ID", value: event.cid },
     { key: "Session ID", value: event.sid },
-    { key: "현재 페이지 URL", value: event.dl },
-    { key: "이전 페이지 URL", value: event.dr },
-    { key: "페이지 제목", value: event.dt },
-    { key: "이벤트 이름", value: event.en },
+    { key: "Page URL", value: event.dl },
+    { key: "Referrer", value: event.dr },
+    { key: "Page Title", value: event.dt },
+    { key: "Event Name", value: event.en },
   ];
-  const basicInfoSection = createSublist("기본 정보", basicInfo);
+  const basicInfoSection = createSublist("General", basicInfo);
   if (basicInfoSection) details.appendChild(basicInfoSection);
 
   const dataSections = [
-    { title: "맞춤 측정기준", data: event.ep },
-    { title: "맞춤 측정항목", data: event.epn },
-    { title: "거래 정보", data: event.eco },
-    { title: "사용자 속성", data: event.up },
+    { title: "Custom Dimension", data: event.ep },
+    { title: "Custom Metric", data: event.epn },
+    { title: "Transaction", data: event.eco },
+    { title: "User Property", data: event.up },
   ];
 
   dataSections.forEach(({ title, data }) => {
@@ -89,7 +91,7 @@ chrome.runtime.onMessage.addListener((message) => {
   });
 
   if (event["pr1"]) {
-    const productInfoSection = createSublist("상품 정보", event, appendProductData);
+    const productInfoSection = createSublist("Items", event, appendProductData);
     if (productInfoSection) details.appendChild(productInfoSection);
   }
 
@@ -149,7 +151,7 @@ function copyToClipboard(text) {
   textarea.select();
   document.execCommand("copy");
   document.body.removeChild(textarea);
-  showCopyNotification("데이터가 클립보드에 복사되었습니다2");
+  showCopyNotification("데이터가 클립보드에 복사되었습니다");
 }
 
 function copyCategoryData(categoryClass, valuesOnly) {
@@ -237,11 +239,11 @@ function createSublist(title, data, formatter) {
 
   const tooltipAll = document.createElement("span");
   tooltipAll.classList.add("copy-tooltip");
-  tooltipAll.textContent = "전체 복사";
+  tooltipAll.textContent = "Copy all";
 
   const tooltipValues = document.createElement("span");
   tooltipValues.classList.add("copy-tooltip");
-  tooltipValues.textContent = "값만 복사";
+  tooltipValues.textContent = "Copy values";
 
   copyAllButton.addEventListener("mouseenter", () => (tooltipAll.style.display = "inline"));
   copyAllButton.addEventListener("mouseleave", () => (tooltipAll.style.display = "none"));
