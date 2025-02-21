@@ -50,8 +50,9 @@ chrome.runtime.onMessage.addListener((message) => {
   const copyButton = requestEntry.querySelector(".copy-btn");
 
   copyButton.addEventListener("click", (e) => {
+    console.log(e)
     e.stopPropagation();
-    copyToClipboard();
+    copyToClipboard(e.target);
   });
 
   const details = document.createElement("div");
@@ -99,9 +100,47 @@ chrome.runtime.onMessage.addListener((message) => {
   });
 });
 
-function copyToClipboard() {}
+function copyToClipboard(element) {
+  const parentsEle = element.closest('.ga4-request');
+  const tables = ['general', 'custom-dimension', 'custom-metric', 'transaction', 'item'];
+  const formattedText = tables
+    .flatMap((tableId) => {
+      const table = parentsEle.querySelectorAll('.' + tableId);
+      return Array.from(table)
+        .filter((tbody) => tbody.children.length > 0)
+        .map((tbody) => formatTable(tbody));
+    })
+    .join('\n\n');
 
-function createTable(data) {
+  console.log(formattedText);
+  if (formattedText == '') {
+    alert('복사할 데이터가 없습니다.');
+    return false;
+  }
+  copyTextToClipboard(formattedText);
+}
+
+function formatTable(table) {
+  return Array.from(table.rows)
+    .map((row) =>
+      Array.from(row.cells)
+        .filter((_, index) => index !== 2)
+        .map((cell) => cell.textContent)
+        .join('\t')
+    )
+    .join('\n');
+}
+
+function copyTextToClipboard(text) {
+  const textarea = document.createElement('textarea');
+  textarea.value = text;
+  document.body.appendChild(textarea);
+  textarea.select();
+  document.execCommand('copy');
+  document.body.removeChild(textarea);
+}
+
+function createTable(data, title) {
   if (!data || (Array.isArray(data) && data.length === 0)) return null;
 
   const table = document.createElement("table");
@@ -116,6 +155,7 @@ function createTable(data) {
   `;
 
   const tbody = document.createElement("tbody");
+  tbody.className = title.replace(/\s+/g, "-").toLowerCase();
 
   data.forEach(({ key, value }) => {
     if (value) {
@@ -142,10 +182,6 @@ function createSublist(title, data, formatter) {
   sublist.innerHTML = `
   <div class="ga4-sublist-title">
     <span>${title}</span>
-    <div class="copy-btn-container">
-      <img src="./images/copy.png" class="copy-btn" alt="Copy All" title="Copy all" />
-      <span class="copy-tooltip">Copy all</span>
-    </div>
   </div>
   <div class="ga4-sublist-content"></div>
 `;
@@ -155,15 +191,9 @@ function createSublist(title, data, formatter) {
   if (formatter) {
     formatter(sublistContent, data);
   } else {
-    const table = createTable(data);
+    const table = createTable(data, title);
     if (table) sublistContent.appendChild(table);
   }
-
-  const copyButton = sublist.querySelector(".copy-btn");
-  copyButton.addEventListener("click", (e) => {
-    e.stopPropagation();
-    copyToClipboard();
-  });
 
   sublist.querySelector(".ga4-sublist-title").addEventListener("click", (e) => {
     e.stopPropagation();
@@ -195,7 +225,7 @@ function appendProductData(container, event) {
     const productContent = document.createElement("div");
     productContent.classList.add("ga4-sublist-content");
 
-    const table = createTable(productData);
+    const table = createTable(productData, 'item');
     if (table) productContent.appendChild(table);
 
     productEntry.appendChild(productContent);
