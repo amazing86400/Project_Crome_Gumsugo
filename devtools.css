@@ -396,49 +396,34 @@ button svg:hover g {
   display: block;
 }
 
-.modal {
-  padding: 0.4rem;
-  position: fixed;
-  right: 0;
-  top: 5%;
-  opacity: 0;
-  z-index: 400;
-  align-items: center;
-  bottom: 0;
-  display: none;
-  justify-content: center;
-  left: 0;
-  opacity: 0;
-  overflow: hidden;
-}
-
-.open {
-  opacity: 1;
-  display: flex;
-  animation: slide-down 0.2s ease 1;
-  z-index: 1;
-}
-
-.modal-overlay {
+.modal-background {
   background: rgba(0, 0, 0, 0.75);
-  bottom: 0;
-  cursor: default;
-  display: block;
-  left: 0;
   position: absolute;
-  right: 0;
   top: 0;
-  outline: none;
-  text-decoration: none;
+  left: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
 }
 
-.modal-container {
-  height: 85vh;
-  max-width: 900px;
-  animation: slide-down 0.2s ease 1;
-  z-index: 1;
-  background: #fff;
-  border-radius: 0.1rem;
-  padding: 0 0.8rem;
+.modal-area {
+  display: flex;
+  justify-content: center;
+}
+
+.modal-area > div {
+  margin-top: 5%;
   width: 90%;
+  padding: 20px;
+  transition: .2s ease-out;
+  position: absolute;
+  background: #fff;
+  border-radius: 4px;
+  box-shadow: rgba(0, 0, 0, 0.16) 0px 3px 6px, rgba(0, 0, 0, 0.23) 0px 3px 6px;
+  z-index: 2;
+}
+
+.remove {
+  visibility: hidden;
+  opacity: 0;
 }

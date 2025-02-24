@@ -1,5 +1,6 @@
 let isProgress = false;
 let isLock = false;
+let data = {};
 
 chrome.devtools.panels.create("GubGub", "", "devtools.html", function (panel) {
   console.log("GubGub DevTools 패널이 생성됨");
@@ -13,34 +14,19 @@ port.onDisconnect.addListener(() => {
 
 chrome.runtime.onMessage.addListener((message) => {
   if (message.action !== "ga4_event" || message.tabId !== chrome.devtools.inspectedWindow.tabId) return;
-
+  data = message.data;
   const ga4Container = document.getElementById("ga4-data-container");
   const event = message.data;
+  const date = new Date().toLocaleString();
 
   const requestEntry = document.createElement("div");
   requestEntry.classList.add("ga4-request");
-
-  function getTimestamp() {
-    const now = new Date();
-    now.setHours(now.getHours());
-
-    const year = now.getFullYear();
-    const month = String(now.getMonth() + 1).padStart(2, "0");
-    const day = String(now.getDate()).padStart(2, "0");
-    const weekday = now.toLocaleDateString("en-US", { weekday: "short" });
-    const hours = String(now.getHours() % 12 || 12).padStart(2, "0");
-    const minutes = String(now.getMinutes()).padStart(2, "0");
-    const seconds = String(now.getSeconds()).padStart(2, "0");
-    const ampm = now.getHours() < 12 || now.getHours() === 24 ? "AM" : "PM";
-
-    return `${year}.${month}.${day}, ${weekday}, ${hours}:${minutes}:${seconds} ${ampm}`;
-  }
 
   requestEntry.innerHTML = `
     <div class="ga4-request-row">
       <span class="ga4-event-name">${event.en}</span>
       <span class="ga4-property-id">${event.tid}</span>
-      <span class="ga4-event-time">${getTimestamp()}</span>
+      <span class="ga4-event-time">${date}</span>
       <div class="copy-btn-container">
         <img src="./images/copy.png" class="copy-btn" alt="Copy All" title="Copy all" />
       </div>
@@ -98,6 +84,7 @@ chrome.runtime.onMessage.addListener((message) => {
       requestEntry.classList.toggle("expanded");
     }
   });
+
 });
 
 function copyToClipboard(element) {
@@ -246,22 +233,26 @@ document.addEventListener("DOMContentLoaded", () => {
     lockIcon: document.getElementById("lock-icon"),
     clearButton: document.getElementById("clear-btn"),
     filterButton: document.getElementById("filter-btn"),
+    filterModalBackground: document.querySelector("#filter-modal > .modal-background"),
     sortButton: document.getElementById("sort-btn"),
-    modalOverlay: document.querySelector(".modal-overlay"),
+    sortModalBackground: document.querySelector("#sort-modal > .modal-background"),
     tooltip: document.getElementById("tooltip"),
     ga4Container: document.getElementById("ga4-data-container"),
     sortSave: document.getElementById("sort-save"),
+    filterSave: document.getElementById("filter-save"),
   };
 
   elements.playButton.addEventListener("click", () => togglePlay(elements));
   elements.lockButton.addEventListener("click", () => toggleLock(elements));
   elements.clearButton.addEventListener("click", () => clearGA4Data(elements.ga4Container));
-  elements.sortButton.addEventListener("click", () => toggleModal(true));
-  elements.modalOverlay.addEventListener("click", () => toggleModal(false));
+  elements.sortButton.addEventListener("click", () => toggleModal('sort-modal', true));
+  elements.filterButton.addEventListener("click", () => toggleModal('filter-modal', true));
+  elements.sortModalBackground.addEventListener("click", (e) => e.target === elements.sortModalBackground && toggleModal('sort-modal', false));
+  elements.filterModalBackground.addEventListener("click", (e) => e.target === elements.filterModalBackground && toggleModal('filter-modal', false));
   elements.sortSave.addEventListener("click", saveSortOrder);
+  elements.filterSave.addEventListener("click", saveFilterOrder);
   addTooltipListeners(elements.tooltip);
-
-  elements.filterButton.addEventListener("click", () => {});
+  
 });
 
 function togglePlay({ playButton, playIcon, lockButton }) {
@@ -310,8 +301,12 @@ function clearGA4Data(container) {
   container.innerHTML = "";
 }
 
-function toggleModal(open) {
-  document.getElementById("modal").classList.toggle("open", open);
+function toggleModal(element, open) {
+  const idName = document.getElementById(element);
+  const modalArea = idName.querySelector(".modal-area > div");
+  const modalBackground = idName.querySelector(".modal-background");
+  modalBackground.style.display = open ? "block" : "none";
+  modalArea.classList.toggle("remove", !open);
 }
 
 function saveSortOrder() {
@@ -333,6 +328,13 @@ function saveSortOrder() {
 
   chrome.runtime.sendMessage({ action: "setSortOrder", cleanedSortObj });
   console.log("정렬 옵션 저장 완료", cleanedSortObj);
+
+  toggleModal(false);
+}
+
+function saveFilterOrder() {
+  console.log('saveFilterOrder:');
+  console.log(data);
 }
 
 function addTooltipListeners(tooltip) {

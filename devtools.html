@@ -41,26 +41,40 @@
       </div>
     </div>
     <hr class="section-divider" />
+    <div class="modal" id="sort-modal">
+      <div class="modal-background" style="display: none;"></div>
+      <div class="modal-area">
+        <div class="remove">
+          <div>Filter by Account ID</div>
+          <div>Custom Dimension-Event</div>
+          <textarea data-event-type="event"></textarea>
+          <div>Custom Dimension-User</div>
+          <textarea data-event-type="user"></textarea>
+          <div>Custom Metric</div>
+          <textarea data-event-type="metric"></textarea>
+          <div>ecommerce Parameter</div>
+          <textarea data-event-type="ecommerce"></textarea>
+          <div>Item Parameter</div>
+          <textarea data-event-type="item"></textarea>
+          <button id="sort-save" type="button">Save</button>
+        </div>
+      </div>
+    </div>
+    <div class="modal" id="filter-modal">
+      <div class="modal-background" style="display: none;"></div>
+      <div class="modal-area">
+        <div class="remove">
+          <div>Filter by Account ID</div>
+          <input>
+          <div>Highlight parameters</div>
+          <input>
+          <button id="filter-save" type="button">Save</button>
+        </div>
+      </div>
+    </div>
     <div class="section data">
       <div>
         <div id="ga4-data-container"></div>
-        <div id="modal" class="modal">
-          <a href="#close" class="modal-overlay"></a>
-          <div class="modal-container">
-            <div>Filter by Account ID</div>
-            <div>Custom Dimension-Event</div>
-            <textarea data-event-type="event"></textarea>
-            <div>Custom Dimension-User</div>
-            <textarea data-event-type="user"></textarea>
-            <div>Custom Metric</div>
-            <textarea data-event-type="metric"></textarea>
-            <div>ecommerce Parameter</div>
-            <textarea data-event-type="ecommerce"></textarea>
-            <div>Item Parameter</div>
-            <textarea data-event-type="item"></textarea>
-            <button id="sort-save" type="button">Save</button>
-          </div>
-        </div>
       </div>
     </div>
 
