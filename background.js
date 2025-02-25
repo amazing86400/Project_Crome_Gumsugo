@@ -1,4 +1,3 @@
-let sortObj = [];
 let tabRequestData = {};
 
 chrome.runtime.onConnect.addListener((port) => {
@@ -42,11 +41,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         console.log("Open 명령 수신");
         chrome.scripting.executeScript({ target: { tabId }, func: () => location.reload() });
         break;
-      case "setSortOrder":
-        if (message.cleanedSortObj) {
-          sortObj = message.cleanedSortObj;
-        }
-        break;
     }
   });
 
@@ -68,71 +62,70 @@ chrome.webRequest.onBeforeRequest.addListener(
     tabRequestData[details.tabId] = tabRequestData[details.tabId] || [];
 
     const urlParams = new URL(details.url).searchParams;
-    const postData = extractPostData(details);
-    const params = postData instanceof URLSearchParams ? postData : urlParams;
+    const extractedEvents = extractGA4Data(details, urlParams);
 
-    const extractedData = {
-      tid: urlParams.get("tid"),
-      _p: urlParams.get("_p"),
-      cid: urlParams.get("cid"),
-      sid: urlParams.get("sid"),
-      dl: urlParams.get("dl"),
-      dr: urlParams.get("dr"),
-      dt: urlParams.get("dt"),
-      en: params.get("en"),
-      ep: setParams(params, "ep."),
-      epn: setParams(params, "epn."),
-      eco: setParams(params, "", true),
-      up: setParams(params, "up."),
-    };
-
-    params.forEach((value, key) => {
-      if (key.startsWith("pr")) {
-        extractedData[key] = sortParams(parseProductString(value), sortObj.itemParam);
-      }
-    });
-
-    if (urlParams.get("cu")) extractedData.eco.push({ key: "currency", value: urlParams.get("cu") });
-    extractedData.ep = sortParams(extractedData.ep, sortObj.eventParam, "ep.");
-    extractedData.epn = sortParams(extractedData.epn, sortObj.metricParam, "epn.");
-    extractedData.eco = sortParams(extractedData.eco, sortObj.ecommerceParam);
-    extractedData.up = sortParams(extractedData.up, sortObj.userParam, "up.");
-
-    tabRequestData[details.tabId].push(extractedData);
-    console.log(`탭 ${details.tabId}에서 발생한 요청:`, extractedData);
-
-    chrome.runtime.sendMessage(
-      {
-        action: "ga4_event",
-        tabId: details.tabId,
-        data: extractedData,
-      },
-      (response) => {
-        if (chrome.runtime.lastError) {
-          console.log("DevTools 패널이 닫혀 있어 메시지를 보낼 수 없음");
-        }
-      }
-    );
+    extractedEvents.forEach((eventData) => sendGA4EventMessage(details.tabId, eventData));
   },
   { urls: ["<all_urls>"] },
   ["requestBody"]
 );
 
-function extractPostData(details) {
-  if (details.method !== "POST" || !details.requestBody) return [];
-  if (details.requestBody.formData) return details.requestBody.formData;
+function extractGA4Data(details, urlParams) {
+  let extractedEvents = [];
 
-  if (details.requestBody.raw) {
+  if (details.method === "POST" && details.requestBody?.raw) {
     const decodedString = new TextDecoder("utf-8").decode(details.requestBody.raw[0].bytes);
-
-    return new URLSearchParams(decodedString);
+    extractedEvents = decodedString
+      .split("en=")
+      .slice(1)
+      .map((eventStr) => new URLSearchParams("en=" + eventStr))
+      .map((evnUrl) => formatGA4EventData(evnUrl, urlParams));
+  } else {
+    extractedEvents.push(formatGA4EventData(urlParams, urlParams));
   }
 
-  return [];
+  return extractedEvents;
+}
+
+function formatGA4EventData(params, urlParams) {
+  let extractedData = {
+    tid: urlParams.get("tid"),
+    _p: urlParams.get("_p"),
+    cid: urlParams.get("cid"),
+    sid: urlParams.get("sid"),
+    dl: urlParams.get("dl"),
+    dr: urlParams.get("dr"),
+    dt: urlParams.get("dt"),
+    en: params.get("en"),
+    ep: setParams(params, "ep."),
+    epn: setParams(params, "epn."),
+    eco: setParams(params, "", true),
+    up: setParams(params, "up."),
+  };
+
+  params.forEach((value, key) => {
+    if (key.startsWith("pr")) {
+      extractedData[key] = parseProductString(value);
+    }
+  });
+
+  if (urlParams.get("cu")) {
+    extractedData.eco.push({ key: "currency", value: urlParams.get("cu") });
+  }
+
+  return extractedData;
+}
+
+function sendGA4EventMessage(tabId, data) {
+  chrome.runtime.sendMessage({ action: "ga4_event", tabId, data }, (response) => {
+    if (chrome.runtime.lastError) {
+      console.log("DevTools 패널이 닫혀 있어 메시지를 보낼 수 없음");
+    }
+  });
 }
 
 function setParams(searchParam, type, isEcommerce = false) {
-  const ecemmerceParams = ["ep.currency", "ep.transaction_id", "ep.coupon", "epn.value", "epn.tax", "epn.shipping"];
+  const ecemmerceParams = ["ep.currency", "ep.transaction_id", "ep.coupon", "epn.value", "epn.tax", "epn.shipping", "ep.payment_info", "ep.shipping_tier"];
 
   return Array.from(searchParam).reduce((result, [key, value]) => {
     const includeCondition = isEcommerce ? ecemmerceParams.includes(key) : key.includes(type) && !ecemmerceParams.includes(key);
@@ -143,19 +136,6 @@ function setParams(searchParam, type, isEcommerce = false) {
 
     return result;
   }, []);
-}
-
-function sortParams(paramArray, sortKeys = [], prefix = "") {
-  const sortedParams = sortKeys.map((key) => {
-    const fullKey = `${prefix}${key}`;
-    const found = paramArray.find((item) => item.key === fullKey);
-
-    return found ? { key: found.key, value: found.value } : { key: fullKey, value: undefined };
-  });
-
-  const remainingParams = paramArray.filter((item) => !sortKeys.includes(item.key.replace(prefix, "")));
-
-  return [...sortedParams, ...remainingParams];
 }
 
 function parseProductString(productString) {
