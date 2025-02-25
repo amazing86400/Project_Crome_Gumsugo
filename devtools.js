@@ -1,6 +1,7 @@
 let isProgress = false;
 let isLock = false;
-let data = {};
+let cleanedSortObj = {};
+let data = [];
 
 chrome.devtools.panels.create("GubGub", "", "devtools.html", function (panel) {
   console.log("GubGub DevTools 패널이 생성됨");
@@ -14,14 +15,31 @@ port.onDisconnect.addListener(() => {
 
 chrome.runtime.onMessage.addListener((message) => {
   if (message.action !== "ga4_event" || message.tabId !== chrome.devtools.inspectedWindow.tabId) return;
-  data = message.data;
-  const ga4Container = document.getElementById("ga4-data-container");
   const event = message.data;
+  data.push(event);
+  
+  createRequestList(event);
+});
+
+function createRequestList(data) {
+  const event = data;
+  const ga4Container = document.getElementById("ga4-data-container");
   const date = new Date().toLocaleString();
+  
+  event.ep = sortParams(event.ep, cleanedSortObj.eventParam);
+  event.epn = sortParams(event.epn, cleanedSortObj.metricParam);
+  event.eco = sortParams(event.eco, cleanedSortObj.ecommerceParam);
+  event.up = sortParams(event.up, cleanedSortObj.userParam);
+  
+  Object.entries(event).forEach(([key, value]) => {
+    if (key.includes("pr")) {
+      event[key] = sortParams(value, cleanedSortObj.itemParam);
+    }
+  });
 
   const requestEntry = document.createElement("div");
   requestEntry.classList.add("ga4-request");
-
+  
   requestEntry.innerHTML = `
     <div class="ga4-request-row">
       <span class="ga4-event-name">${event.en}</span>
@@ -32,18 +50,18 @@ chrome.runtime.onMessage.addListener((message) => {
       </div>
     </div>
   `;
-
+  
   const copyButton = requestEntry.querySelector(".copy-btn");
-
+  
   copyButton.addEventListener("click", (e) => {
     console.log(e)
     e.stopPropagation();
     copyToClipboard(e.target);
   });
-
+  
   const details = document.createElement("div");
   details.classList.add("ga4-details");
-
+  
   const basicInfo = [
     { key: "GA4 Property ID", value: event.tid },
     { key: "Timestamp", value: event._p },
@@ -56,36 +74,48 @@ chrome.runtime.onMessage.addListener((message) => {
   ];
   const basicInfoSection = createSublist("General", basicInfo);
   if (basicInfoSection) details.appendChild(basicInfoSection);
-
+  
   const dataSections = [
     { title: "Custom Dimension", data: event.ep },
     { title: "Custom Metric", data: event.epn },
     { title: "Transaction", data: event.eco },
     { title: "User Property", data: event.up },
   ];
-
+  
   dataSections.forEach(({ title, data }) => {
     if (Array.isArray(data) && data.length > 0) {
       const section = createSublist(title, data);
       if (section) details.appendChild(section);
     }
   });
-
+  
   if (event["pr1"]) {
     const productInfoSection = createSublist("Items", event, appendProductData);
     if (productInfoSection) details.appendChild(productInfoSection);
   }
-
+  
   requestEntry.appendChild(details);
   ga4Container.appendChild(requestEntry);
-
+  
   requestEntry.addEventListener("click", (e) => {
     if (!e.target.closest(".ga4-sublist-title")) {
       requestEntry.classList.toggle("expanded");
     }
   });
+}
 
-});
+function sortParams(paramArray, sortKeys = [], prefix = "") {
+  const sortedParams = sortKeys.map((key) => {
+    const fullKey = `${prefix}${key}`;
+    const found = paramArray.find((item) => item.key === fullKey);
+
+    return found ? { key: found.key, value: found.value } : { key: fullKey, value: undefined };
+  });
+
+  const remainingParams = paramArray.filter((item) => !sortKeys.includes(item.key.replace(prefix, "")));
+
+  return [...sortedParams, ...remainingParams];
+}
 
 function copyToClipboard(element) {
   const parentsEle = element.closest('.ga4-request');
@@ -151,7 +181,7 @@ function createTable(data, title) {
       tbody.appendChild(row);
     }
   });
-
+  if (tbody.childElementCount == 0) { return }
   table.appendChild(thead);
   table.appendChild(tbody);
 
@@ -179,7 +209,11 @@ function createSublist(title, data, formatter) {
     formatter(sublistContent, data);
   } else {
     const table = createTable(data, title);
-    if (table) sublistContent.appendChild(table);
+    if (table) {
+      sublistContent.appendChild(table)
+    } else {
+      return
+    };
   }
 
   sublist.querySelector(".ga4-sublist-title").addEventListener("click", (e) => {
@@ -288,16 +322,7 @@ function toggleLock({ lockButton, lockIcon, playButton }) {
 }
 
 function clearGA4Data(container) {
-  const tabId = chrome.devtools.inspectedWindow.tabId;
-
-  chrome.runtime.sendMessage({ action: "clear_tab_data", tabId }, (response) => {
-    if (chrome.runtime.lastError) {
-      console.log("Background 스크립트와 연결되지 않음");
-    } else {
-      console.log(`탭 ${tabId}의 데이터 삭제 완료`);
-    }
-  });
-
+  data = [];
   container.innerHTML = "";
 }
 
@@ -316,9 +341,9 @@ function saveSortOrder() {
   const ecommerceParams = document.querySelector('textarea[data-event-type="ecommerce"]').value.split("\n");
   const itemParams = document.querySelector('textarea[data-event-type="item"]').value.split("\n");
 
-  const cleanArray = (arr) => arr.filter(Boolean);
+  const cleanArray = (arr) => [...new Set(arr.filter(Boolean))];
 
-  const cleanedSortObj = {
+  cleanedSortObj = {
     eventParam: cleanArray(eventParams),
     metricParam: cleanArray(metricParams),
     userParam: cleanArray(userParams),
@@ -326,10 +351,13 @@ function saveSortOrder() {
     itemParam: cleanArray(itemParams),
   };
 
-  chrome.runtime.sendMessage({ action: "setSortOrder", cleanedSortObj });
+  // chrome.runtime.sendMessage({ action: "setSortOrder", cleanedSortObj });
   console.log("정렬 옵션 저장 완료", cleanedSortObj);
+  toggleModal('sort-modal', false);
+  const container = document.getElementById('ga4-data-container');
+  container.innerHTML = "";
+  data.forEach((value)=> { createRequestList(value); })
 
-  toggleModal(false);
 }
 
 function saveFilterOrder() {
