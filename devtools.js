@@ -351,13 +351,11 @@ function saveSortOrder() {
     itemParam: cleanArray(itemParams),
   };
 
-  // chrome.runtime.sendMessage({ action: "setSortOrder", cleanedSortObj });
-  console.log("정렬 옵션 저장 완료", cleanedSortObj);
-  toggleModal('sort-modal', false);
   const container = document.getElementById('ga4-data-container');
   container.innerHTML = "";
   data.forEach((value)=> { createRequestList(value); })
-
+  console.log("정렬 옵션 저장 완료", cleanedSortObj);
+  toggleModal('sort-modal', false);
 }
 
 function saveFilterOrder() {
