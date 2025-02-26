@@ -283,6 +283,7 @@ document.addEventListener("DOMContentLoaded", () => {
     sortButton: document.getElementById("sort-btn"),
     sortModalBackground: document.querySelector("#sort-modal > .modal-background"),
     gtmButton: document.getElementById("gtm-btn"),
+    gtmModalBackground: document.querySelector("#gtm-modal > .modal-background"),
     tooltip: document.getElementById("tooltip"),
     ga4Container: document.getElementById("ga4-data-container"),
     sortSave: document.getElementById("sort-save"),
@@ -296,8 +297,10 @@ document.addEventListener("DOMContentLoaded", () => {
   elements.clearButton.addEventListener("click", () => clearGA4Data(elements.ga4Container));
   elements.sortButton.addEventListener("click", () => toggleModal("sort-modal", true));
   elements.filterButton.addEventListener("click", () => toggleModal("filter-modal", true));
+  elements.gtmButton.addEventListener("click", () => checkGTM());
   elements.sortModalBackground.addEventListener("click", (e) => e.target === elements.sortModalBackground && toggleModal("sort-modal", false));
   elements.filterModalBackground.addEventListener("click", (e) => e.target === elements.filterModalBackground && toggleModal("filter-modal", false));
+  elements.gtmModalBackground.addEventListener("click", (e) => e.target === elements.gtmModalBackground && toggleModal("gtm-modal", false));
   elements.sortSave.addEventListener("click", saveSortOrder);
   elements.filterSave.addEventListener("click", saveFilterOrder);
 
@@ -431,4 +434,10 @@ function addTooltipListeners(elements) {
   document.body.addEventListener("mouseout", () => {
     elements.tooltip.style.display = "none";
   });
+}
+
+function checkGTM() {
+  chrome.runtime.sendMessage({ action: "gtm" });
+
+  toggleModal("gtm-modal", true);
 }

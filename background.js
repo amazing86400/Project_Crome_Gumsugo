@@ -21,11 +21,19 @@ chrome.runtime.onMessage.addListener((message) => {
     switch (message.action) {
       case "lock":
         console.log("Lock 명령 수신");
-        chrome.scripting.executeScript({ target: { tabId }, files: ["content.js"] });
+        chrome.scripting.executeScript({ target: { tabId }, files: ["content.js"] }, () => {
+          chrome.tabs.sendMessage(tabId, { action: "extract_lock" });
+        });
         break;
       case "open":
         console.log("Open 명령 수신");
         chrome.scripting.executeScript({ target: { tabId }, func: () => location.reload() });
+        break;
+      case "gtm":
+        console.log("gtm 명령 수신");
+        chrome.scripting.executeScript({ target: { tabId }, files: ["content.js"] }, () => {
+          chrome.tabs.sendMessage(tabId, { action: "extract_gtm" });
+        });
         break;
     }
   });
