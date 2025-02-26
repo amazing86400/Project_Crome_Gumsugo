@@ -1,6 +1,9 @@
 let isProgress = false;
 let isLock = false;
 let cleanedSortObj = {};
+let propertyFilter;
+let eventFilter;
+let highLightValue = [];
 let data = [];
 
 chrome.devtools.panels.create("GubGub", "", "devtools.html", function (panel) {
@@ -17,7 +20,7 @@ chrome.runtime.onMessage.addListener((message) => {
   if (message.action !== "ga4_event" || message.tabId !== chrome.devtools.inspectedWindow.tabId) return;
   const event = message.data;
   data.push(event);
-  
+
   createRequestList(event);
 });
 
@@ -26,82 +29,86 @@ function createRequestList(data) {
   const ga4Container = document.getElementById("ga4-data-container");
   const date = new Date().toLocaleString();
   
-  event.ep = sortParams(event.ep, cleanedSortObj.eventParam);
-  event.epn = sortParams(event.epn, cleanedSortObj.metricParam);
-  event.eco = sortParams(event.eco, cleanedSortObj.ecommerceParam);
-  event.up = sortParams(event.up, cleanedSortObj.userParam);
+  if ((!propertyFilter || propertyFilter == event.tid) && (!eventFilter || eventFilter == event.en)) {
+    event.ep = sortParams(event.ep, cleanedSortObj.eventParam);
+    event.epn = sortParams(event.epn, cleanedSortObj.metricParam);
+    event.eco = sortParams(event.eco, cleanedSortObj.ecommerceParam);
+    event.up = sortParams(event.up, cleanedSortObj.userParam);
+    
+    Object.entries(event).forEach(([key, value]) => {
+      if (key.includes("pr")) {
+        event[key] = sortParams(value, cleanedSortObj.itemParam);
+      }
+    });
   
-  Object.entries(event).forEach(([key, value]) => {
-    if (key.includes("pr")) {
-      event[key] = sortParams(value, cleanedSortObj.itemParam);
-    }
-  });
-
-  const requestEntry = document.createElement("div");
-  requestEntry.classList.add("ga4-request");
-  
-  requestEntry.innerHTML = `
-    <div class="ga4-request-row">
-      <span class="ga4-event-name">${event.en}</span>
-      <span class="ga4-property-id">${event.tid}</span>
-      <span class="ga4-event-time">${date}</span>
-      <div class="copy-btn-container">
-        <img src="./images/copy.png" class="copy-btn" alt="Copy All" title="Copy all" />
+    const requestEntry = document.createElement("div");
+    requestEntry.classList.add("ga4-request");
+    
+    requestEntry.innerHTML = `
+      <div class="ga4-request-row">
+        <span class="ga4-event-name">${event.en}</span>
+        <span class="ga4-property-id">${event.tid}</span>
+        <span class="ga4-event-time">${date}</span>
+        <div class="copy-btn-container">
+          <img src="./images/copy.png" class="copy-btn" alt="Copy All" title="Copy all" />
+        </div>
       </div>
-    </div>
-  `;
-  
-  const copyButton = requestEntry.querySelector(".copy-btn");
-  
-  copyButton.addEventListener("click", (e) => {
-    console.log(e)
-    e.stopPropagation();
-    copyToClipboard(e.target);
-  });
-  
-  const details = document.createElement("div");
-  details.classList.add("ga4-details");
-  
-  const basicInfo = [
-    { key: "GA4 Property ID", value: event.tid },
-    { key: "Timestamp", value: event._p },
-    { key: "Client ID", value: event.cid },
-    { key: "Session ID", value: event.sid },
-    { key: "Page URL", value: event.dl },
-    { key: "Referrer", value: event.dr },
-    { key: "Page Title", value: event.dt },
-    { key: "Event Name", value: event.en },
-  ];
-  const basicInfoSection = createSublist("General", basicInfo);
-  if (basicInfoSection) details.appendChild(basicInfoSection);
-  
-  const dataSections = [
-    { title: "Custom Dimension", data: event.ep },
-    { title: "Custom Metric", data: event.epn },
-    { title: "Transaction", data: event.eco },
-    { title: "User Property", data: event.up },
-  ];
-  
-  dataSections.forEach(({ title, data }) => {
-    if (Array.isArray(data) && data.length > 0) {
-      const section = createSublist(title, data);
-      if (section) details.appendChild(section);
+    `;
+    
+    const copyButton = requestEntry.querySelector(".copy-btn");
+    
+    copyButton.addEventListener("click", (e) => {
+      console.log(e)
+      e.stopPropagation();
+      copyToClipboard(e.target);
+    });
+    
+    const details = document.createElement("div");
+    details.classList.add("ga4-details");
+    
+    const basicInfo = [
+      { key: "GA4 Property ID", value: event.tid },
+      { key: "Timestamp", value: event._p },
+      { key: "Client ID", value: event.cid },
+      { key: "Session ID", value: event.sid },
+      { key: "Page URL", value: event.dl },
+      { key: "Referrer", value: event.dr },
+      { key: "Page Title", value: event.dt },
+      { key: "Event Name", value: event.en },
+    ];
+    const basicInfoSection = createSublist("General", basicInfo);
+    if (basicInfoSection) details.appendChild(basicInfoSection);
+    
+    const dataSections = [
+      { title: "User Property", data: event.up },
+      { title: "Custom Dimension", data: event.ep },
+      { title: "Custom Metric", data: event.epn },
+      { title: "Transaction", data: event.eco },
+    ];
+    
+    dataSections.forEach(({ title, data }) => {
+      if (Array.isArray(data) && data.length > 0) {
+        const section = createSublist(title, data);
+        if (section) details.appendChild(section);
+      }
+    });
+    
+    if (event["pr1"]) {
+      const productInfoSection = createSublist("Items", event, appendProductData);
+      if (productInfoSection) details.appendChild(productInfoSection);
     }
-  });
-  
-  if (event["pr1"]) {
-    const productInfoSection = createSublist("Items", event, appendProductData);
-    if (productInfoSection) details.appendChild(productInfoSection);
+    
+    requestEntry.appendChild(details);
+    ga4Container.appendChild(requestEntry);
+    
+    requestEntry.addEventListener("click", (e) => {
+      if (!e.target.closest(".ga4-sublist-title")) {
+        requestEntry.classList.toggle("expanded");
+      }
+    });
+    // createRequestList(event);
   }
-  
-  requestEntry.appendChild(details);
-  ga4Container.appendChild(requestEntry);
-  
-  requestEntry.addEventListener("click", (e) => {
-    if (!e.target.closest(".ga4-sublist-title")) {
-      requestEntry.classList.toggle("expanded");
-    }
-  });
+
 }
 
 function sortParams(paramArray, sortKeys = [], prefix = "") {
@@ -178,8 +185,13 @@ function createTable(data, title) {
     if (value) {
       const row = document.createElement("tr");
       row.innerHTML = `<td>${key}</td><td>${value}</td>`;
+
+      if (highLightValue.includes(key)) {
+        row.classList.add('highlight');
+      }
       tbody.appendChild(row);
     }
+
   });
   if (tbody.childElementCount == 0) { return }
   table.appendChild(thead);
@@ -274,6 +286,8 @@ document.addEventListener("DOMContentLoaded", () => {
     ga4Container: document.getElementById("ga4-data-container"),
     sortSave: document.getElementById("sort-save"),
     filterSave: document.getElementById("filter-save"),
+    highLight: document.getElementById("highlight_parameter"),
+    highLightList: document.querySelector(".highLight-list"),
   };
 
   elements.playButton.addEventListener("click", () => togglePlay(elements));
@@ -286,6 +300,19 @@ document.addEventListener("DOMContentLoaded", () => {
   elements.sortSave.addEventListener("click", saveSortOrder);
   elements.filterSave.addEventListener("click", saveFilterOrder);
   addTooltipListeners(elements.tooltip);
+
+  elements.highLight.addEventListener("keypress", (e) => {
+    if (e.key === "Enter" && elements.highLight.value.trim() !== "") {
+
+      if (!highLightValue.includes(elements.highLight.value)) {
+        highLightValue.push(elements.highLight.value);
+        const newItem = document.createElement("p");
+        newItem.textContent = elements.highLight.value;
+        elements.highLightList.appendChild(newItem);
+      }
+      elements.highLight.value = "";
+    }
+  });
   
 });
 
@@ -327,11 +354,19 @@ function clearGA4Data(container) {
 }
 
 function toggleModal(element, open) {
-  const idName = document.getElementById(element);
-  const modalArea = idName.querySelector(".modal-area > div");
-  const modalBackground = idName.querySelector(".modal-background");
-  modalBackground.style.display = open ? "block" : "none";
-  modalArea.classList.toggle("remove", !open);
+  document.querySelectorAll(".modal-background").forEach((modal) => {
+    modal.style.display = "none";
+    modal.nextElementSibling.querySelector('div').classList.add("remove");
+  });
+  
+  if (open) {
+    const idName = document.getElementById(element);
+    const modalArea = idName.querySelector(".modal-area > div");
+    const modalBackground = idName.querySelector(".modal-background");
+
+    modalBackground.style.display = "block";
+    modalArea.classList.remove("remove");
+  }
 }
 
 function saveSortOrder() {
@@ -353,12 +388,24 @@ function saveSortOrder() {
 
   const container = document.getElementById('ga4-data-container');
   container.innerHTML = "";
-  data.forEach((value)=> { createRequestList(value); })
+  data.forEach((value) => { createRequestList(value); })
   console.log("정렬 옵션 저장 완료", cleanedSortObj);
   toggleModal('sort-modal', false);
 }
 
 function saveFilterOrder() {
+  const filterAccount = document.getElementById('filter-account').value;
+  const filterEvent = document.getElementById('filter-event').value;
+  const container = document.getElementById('ga4-data-container');
+  propertyFilter = filterAccount;
+  eventFilter = filterEvent;
+  container.innerHTML = "";
+
+  data.forEach((value) => {
+    createRequestList(value);
+  });
+
+  toggleModal('filter-modal', false);
   console.log('saveFilterOrder:');
   console.log(data);
 }

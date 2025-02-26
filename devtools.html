@@ -46,10 +46,10 @@
       <div class="modal-area">
         <div class="remove">
           <div>Filter by Account ID</div>
-          <div>Custom Dimension-Event</div>
-          <textarea data-event-type="event"></textarea>
           <div>Custom Dimension-User</div>
           <textarea data-event-type="user"></textarea>
+          <div>Custom Dimension-Event</div>
+          <textarea data-event-type="event"></textarea>
           <div>Custom Metric</div>
           <textarea data-event-type="metric"></textarea>
           <div>ecommerce Parameter</div>
@@ -65,9 +65,14 @@
       <div class="modal-area">
         <div class="remove">
           <div>Filter by Account ID</div>
-          <input>
+          <input id="filter-account">
+          <div>Filter by Event Name</div>
+          <input id="filter-event">
           <div>Highlight parameters</div>
-          <input>
+          <input id="highlight_parameter">
+          <div class="highLight-list">
+
+          </div>
           <button id="filter-save" type="button">Save</button>
         </div>
       </div>

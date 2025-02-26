@@ -427,3 +427,7 @@ button svg:hover g {
   visibility: hidden;
   opacity: 0;
 }
+
+.highlight {
+  background-color: yellow !important;
+}
