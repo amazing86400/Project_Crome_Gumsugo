@@ -39,10 +39,13 @@
           </svg>
         </button>
       </div>
+      <button id="gtm-btn" data-tooltip="Search GTM Container">
+        <img id="gtm-icon" src="./images/gtm-logo.svg" alt="GTM" />
+      </button>
     </div>
     <hr class="section-divider" />
     <div class="modal" id="sort-modal">
-      <div class="modal-background" style="display: none;"></div>
+      <div class="modal-background" style="display: none"></div>
       <div class="modal-area">
         <div class="remove">
           <div>Filter by Account ID</div>
@@ -61,18 +64,16 @@
       </div>
     </div>
     <div class="modal" id="filter-modal">
-      <div class="modal-background" style="display: none;"></div>
+      <div class="modal-background" style="display: none"></div>
       <div class="modal-area">
         <div class="remove">
           <div>Filter by Account ID</div>
-          <input id="filter-account">
+          <input id="filter-account" />
           <div>Filter by Event Name</div>
-          <input id="filter-event">
+          <input id="filter-event" />
           <div>Highlight parameters</div>
-          <input id="highlight_parameter">
-          <div class="highLight-list">
-
-          </div>
+          <input id="highlight_parameter" />
+          <div class="highLight-list"></div>
           <button id="filter-save" type="button">Save</button>
         </div>
       </div>

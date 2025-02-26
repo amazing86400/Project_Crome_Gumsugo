@@ -92,6 +92,8 @@ body {
   background-color: white;
   z-index: 1000;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  display: flex;
+  justify-content: space-between;
 }
 
 .section.data {
@@ -219,6 +221,35 @@ button svg:hover g {
   align-items: center;
 }
 
+#gtm-btn {
+  position: absolute;
+  right: 10px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  margin: 5px;
+  padding: 0px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 20px;
+  height: 20px;
+}
+
+#gtm-btn img {
+  width: 20px;
+  height: 20px;
+  transition: transform 0.3s ease;
+  filter: grayscale(100%) brightness(0.7) contrast(1.2);
+  opacity: 0.7;
+}
+
+#gtm-btn:hover img {
+  transform: scale(1.1);
+  filter: none;
+  opacity: 1;
+}
+
 .vertical-divider {
   width: 1px;
   height: 16px;
@@ -241,21 +272,6 @@ button svg:hover g {
   display: none;
   z-index: 1000;
   white-space: nowrap;
-}
-
-.copy-tooltip {
-  display: none;
-  position: absolute;
-  background: black;
-  color: white;
-  padding: 5px 8px;
-  border-radius: 4px;
-  font-size: 12px;
-  white-space: nowrap;
-  bottom: -25px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 10;
 }
 
 .ga4-table {
@@ -415,7 +431,7 @@ button svg:hover g {
   margin-top: 5%;
   width: 90%;
   padding: 20px;
-  transition: .2s ease-out;
+  transition: 0.2s ease-out;
   position: absolute;
   background: #fff;
   border-radius: 4px;

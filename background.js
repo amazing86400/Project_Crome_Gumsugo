@@ -10,22 +10,8 @@ chrome.runtime.onConnect.addListener((port) => {
   }
 });
 
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+chrome.runtime.onMessage.addListener((message) => {
   if (!message.action) return;
-
-  if (message.action === "clear_tab_data") {
-    const { tabId } = message;
-    if (tabRequestData[tabId]) {
-      delete tabRequestData[tabId];
-      console.log(`탭 ${tabId}의 데이터 삭제 완료`);
-      sendResponse({ success: true });
-    } else {
-      console.log(`탭 ${tabId}의 데이터가 존재하지 않음`);
-      sendResponse({ success: false });
-    }
-
-    return;
-  }
 
   chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
     if (!tabs.length) return;
@@ -56,7 +42,7 @@ chrome.tabs.onRemoved.addListener((tabId) => {
 
 chrome.webRequest.onBeforeRequest.addListener(
   (details) => {
-    if (!details.url.includes("/g/collect?v=2") || details.initiator.startsWith("chrome-extension://")) return;
+    if (details.url.includes("stats.g.doubleclick.net") || !details.url.includes("/g/collect?v=2") || details.initiator.startsWith("chrome-extension://")) return;
     if (!details.tabId || details.tabId < 0) return;
 
     tabRequestData[details.tabId] = tabRequestData[details.tabId] || [];

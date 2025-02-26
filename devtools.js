@@ -28,22 +28,22 @@ function createRequestList(data) {
   const event = data;
   const ga4Container = document.getElementById("ga4-data-container");
   const date = new Date().toLocaleString();
-  
+
   if ((!propertyFilter || propertyFilter == event.tid) && (!eventFilter || eventFilter == event.en)) {
     event.ep = sortParams(event.ep, cleanedSortObj.eventParam);
     event.epn = sortParams(event.epn, cleanedSortObj.metricParam);
     event.eco = sortParams(event.eco, cleanedSortObj.ecommerceParam);
     event.up = sortParams(event.up, cleanedSortObj.userParam);
-    
+
     Object.entries(event).forEach(([key, value]) => {
       if (key.includes("pr")) {
         event[key] = sortParams(value, cleanedSortObj.itemParam);
       }
     });
-  
+
     const requestEntry = document.createElement("div");
     requestEntry.classList.add("ga4-request");
-    
+
     requestEntry.innerHTML = `
       <div class="ga4-request-row">
         <span class="ga4-event-name">${event.en}</span>
@@ -54,18 +54,18 @@ function createRequestList(data) {
         </div>
       </div>
     `;
-    
+
     const copyButton = requestEntry.querySelector(".copy-btn");
-    
+
     copyButton.addEventListener("click", (e) => {
-      console.log(e)
+      console.log(e);
       e.stopPropagation();
       copyToClipboard(e.target);
     });
-    
+
     const details = document.createElement("div");
     details.classList.add("ga4-details");
-    
+
     const basicInfo = [
       { key: "GA4 Property ID", value: event.tid },
       { key: "Timestamp", value: event._p },
@@ -78,29 +78,29 @@ function createRequestList(data) {
     ];
     const basicInfoSection = createSublist("General", basicInfo);
     if (basicInfoSection) details.appendChild(basicInfoSection);
-    
+
     const dataSections = [
       { title: "User Property", data: event.up },
       { title: "Custom Dimension", data: event.ep },
       { title: "Custom Metric", data: event.epn },
       { title: "Transaction", data: event.eco },
     ];
-    
+
     dataSections.forEach(({ title, data }) => {
       if (Array.isArray(data) && data.length > 0) {
         const section = createSublist(title, data);
         if (section) details.appendChild(section);
       }
     });
-    
+
     if (event["pr1"]) {
       const productInfoSection = createSublist("Items", event, appendProductData);
       if (productInfoSection) details.appendChild(productInfoSection);
     }
-    
+
     requestEntry.appendChild(details);
     ga4Container.appendChild(requestEntry);
-    
+
     requestEntry.addEventListener("click", (e) => {
       if (!e.target.closest(".ga4-sublist-title")) {
         requestEntry.classList.toggle("expanded");
@@ -108,7 +108,6 @@ function createRequestList(data) {
     });
     // createRequestList(event);
   }
-
 }
 
 function sortParams(paramArray, sortKeys = [], prefix = "") {
@@ -125,20 +124,20 @@ function sortParams(paramArray, sortKeys = [], prefix = "") {
 }
 
 function copyToClipboard(element) {
-  const parentsEle = element.closest('.ga4-request');
-  const tables = ['general', 'custom-dimension', 'custom-metric', 'transaction', 'item'];
+  const parentsEle = element.closest(".ga4-request");
+  const tables = ["general", "custom-dimension", "custom-metric", "transaction", "item"];
   const formattedText = tables
     .flatMap((tableId) => {
-      const table = parentsEle.querySelectorAll('.' + tableId);
+      const table = parentsEle.querySelectorAll("." + tableId);
       return Array.from(table)
         .filter((tbody) => tbody.children.length > 0)
         .map((tbody) => formatTable(tbody));
     })
-    .join('\n\n');
+    .join("\n\n");
 
   console.log(formattedText);
-  if (formattedText == '') {
-    alert('복사할 데이터가 없습니다.');
+  if (formattedText == "") {
+    alert("복사할 데이터가 없습니다.");
     return false;
   }
   copyTextToClipboard(formattedText);
@@ -150,17 +149,17 @@ function formatTable(table) {
       Array.from(row.cells)
         .filter((_, index) => index !== 2)
         .map((cell) => cell.textContent)
-        .join('\t')
+        .join("\t")
     )
-    .join('\n');
+    .join("\n");
 }
 
 function copyTextToClipboard(text) {
-  const textarea = document.createElement('textarea');
+  const textarea = document.createElement("textarea");
   textarea.value = text;
   document.body.appendChild(textarea);
   textarea.select();
-  document.execCommand('copy');
+  document.execCommand("copy");
   document.body.removeChild(textarea);
 }
 
@@ -187,13 +186,14 @@ function createTable(data, title) {
       row.innerHTML = `<td>${key}</td><td>${value}</td>`;
 
       if (highLightValue.includes(key)) {
-        row.classList.add('highlight');
+        row.classList.add("highlight");
       }
       tbody.appendChild(row);
     }
-
   });
-  if (tbody.childElementCount == 0) { return }
+  if (tbody.childElementCount == 0) {
+    return;
+  }
   table.appendChild(thead);
   table.appendChild(tbody);
 
@@ -222,10 +222,10 @@ function createSublist(title, data, formatter) {
   } else {
     const table = createTable(data, title);
     if (table) {
-      sublistContent.appendChild(table)
+      sublistContent.appendChild(table);
     } else {
-      return
-    };
+      return;
+    }
   }
 
   sublist.querySelector(".ga4-sublist-title").addEventListener("click", (e) => {
@@ -258,7 +258,7 @@ function appendProductData(container, event) {
     const productContent = document.createElement("div");
     productContent.classList.add("ga4-sublist-content");
 
-    const table = createTable(productData, 'item');
+    const table = createTable(productData, "item");
     if (table) productContent.appendChild(table);
 
     productEntry.appendChild(productContent);
@@ -282,6 +282,7 @@ document.addEventListener("DOMContentLoaded", () => {
     filterModalBackground: document.querySelector("#filter-modal > .modal-background"),
     sortButton: document.getElementById("sort-btn"),
     sortModalBackground: document.querySelector("#sort-modal > .modal-background"),
+    gtmButton: document.getElementById("gtm-btn"),
     tooltip: document.getElementById("tooltip"),
     ga4Container: document.getElementById("ga4-data-container"),
     sortSave: document.getElementById("sort-save"),
@@ -293,17 +294,17 @@ document.addEventListener("DOMContentLoaded", () => {
   elements.playButton.addEventListener("click", () => togglePlay(elements));
   elements.lockButton.addEventListener("click", () => toggleLock(elements));
   elements.clearButton.addEventListener("click", () => clearGA4Data(elements.ga4Container));
-  elements.sortButton.addEventListener("click", () => toggleModal('sort-modal', true));
-  elements.filterButton.addEventListener("click", () => toggleModal('filter-modal', true));
-  elements.sortModalBackground.addEventListener("click", (e) => e.target === elements.sortModalBackground && toggleModal('sort-modal', false));
-  elements.filterModalBackground.addEventListener("click", (e) => e.target === elements.filterModalBackground && toggleModal('filter-modal', false));
+  elements.sortButton.addEventListener("click", () => toggleModal("sort-modal", true));
+  elements.filterButton.addEventListener("click", () => toggleModal("filter-modal", true));
+  elements.sortModalBackground.addEventListener("click", (e) => e.target === elements.sortModalBackground && toggleModal("sort-modal", false));
+  elements.filterModalBackground.addEventListener("click", (e) => e.target === elements.filterModalBackground && toggleModal("filter-modal", false));
   elements.sortSave.addEventListener("click", saveSortOrder);
   elements.filterSave.addEventListener("click", saveFilterOrder);
-  addTooltipListeners(elements.tooltip);
+
+  addTooltipListeners(elements);
 
   elements.highLight.addEventListener("keypress", (e) => {
     if (e.key === "Enter" && elements.highLight.value.trim() !== "") {
-
       if (!highLightValue.includes(elements.highLight.value)) {
         highLightValue.push(elements.highLight.value);
         const newItem = document.createElement("p");
@@ -313,7 +314,6 @@ document.addEventListener("DOMContentLoaded", () => {
       elements.highLight.value = "";
     }
   });
-  
 });
 
 function togglePlay({ playButton, playIcon, lockButton }) {
@@ -356,9 +356,9 @@ function clearGA4Data(container) {
 function toggleModal(element, open) {
   document.querySelectorAll(".modal-background").forEach((modal) => {
     modal.style.display = "none";
-    modal.nextElementSibling.querySelector('div').classList.add("remove");
+    modal.nextElementSibling.querySelector("div").classList.add("remove");
   });
-  
+
   if (open) {
     const idName = document.getElementById(element);
     const modalArea = idName.querySelector(".modal-area > div");
@@ -386,17 +386,19 @@ function saveSortOrder() {
     itemParam: cleanArray(itemParams),
   };
 
-  const container = document.getElementById('ga4-data-container');
+  const container = document.getElementById("ga4-data-container");
   container.innerHTML = "";
-  data.forEach((value) => { createRequestList(value); })
+  data.forEach((value) => {
+    createRequestList(value);
+  });
   console.log("정렬 옵션 저장 완료", cleanedSortObj);
-  toggleModal('sort-modal', false);
+  toggleModal("sort-modal", false);
 }
 
 function saveFilterOrder() {
-  const filterAccount = document.getElementById('filter-account').value;
-  const filterEvent = document.getElementById('filter-event').value;
-  const container = document.getElementById('ga4-data-container');
+  const filterAccount = document.getElementById("filter-account").value;
+  const filterEvent = document.getElementById("filter-event").value;
+  const container = document.getElementById("ga4-data-container");
   propertyFilter = filterAccount;
   eventFilter = filterEvent;
   container.innerHTML = "";
@@ -405,23 +407,28 @@ function saveFilterOrder() {
     createRequestList(value);
   });
 
-  toggleModal('filter-modal', false);
-  console.log('saveFilterOrder:');
+  toggleModal("filter-modal", false);
+  console.log("saveFilterOrder:");
   console.log(data);
 }
 
-function addTooltipListeners(tooltip) {
+function addTooltipListeners(elements) {
   document.body.addEventListener("mouseover", (e) => {
     const button = e.target.closest("button[data-tooltip]");
     if (button) {
-      tooltip.textContent = button.getAttribute("data-tooltip");
-      tooltip.style.left = `${e.pageX + 10}px`;
-      tooltip.style.top = `${e.pageY + 10}px`;
-      tooltip.style.display = "block";
+      elements.tooltip.textContent = button.getAttribute("data-tooltip");
+      elements.tooltip.style.display = "block";
+      if (button.id === "gtm-btn") {
+        elements.tooltip.style.left = `${button.offsetLeft - elements.tooltip.offsetWidth - 5}px`;
+        elements.tooltip.style.top = `${button.offsetTop + button.offsetHeight / 2 - elements.tooltip.offsetHeight / 2}px`;
+      } else {
+        elements.tooltip.style.left = `${e.pageX + 10}px`;
+        elements.tooltip.style.top = `${e.pageY + 10}px`;
+      }
     }
   });
 
   document.body.addEventListener("mouseout", () => {
-    tooltip.style.display = "none";
+    elements.tooltip.style.display = "none";
   });
 }
