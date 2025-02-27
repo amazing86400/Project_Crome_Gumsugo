@@ -17,11 +17,15 @@ port.onDisconnect.addListener(() => {
 });
 
 chrome.runtime.onMessage.addListener((message) => {
-  if (message.action !== "ga4_event" || message.tabId !== chrome.devtools.inspectedWindow.tabId) return;
-  const event = message.data;
-  data.push(event);
+  if ((message.action !== "gtm_containers" && message.action !== "ga4_event") || message.tabId !== chrome.devtools.inspectedWindow.tabId) return;
 
-  createRequestList(event);
+  if (message.action === "ga4_event") {
+    const event = message.data;
+    data.push(event);
+    createRequestList(event);
+  } else if (message.action === "gtm_containers") {
+    checkGTM(message.data);
+  }
 });
 
 function createRequestList(data) {
@@ -297,7 +301,8 @@ document.addEventListener("DOMContentLoaded", () => {
   elements.clearButton.addEventListener("click", () => clearGA4Data(elements.ga4Container));
   elements.sortButton.addEventListener("click", () => toggleModal("sort-modal", true));
   elements.filterButton.addEventListener("click", () => toggleModal("filter-modal", true));
-  elements.gtmButton.addEventListener("click", () => checkGTM());
+  // elements.gtmButton.addEventListener("click", () => searchGTM());
+  elements.gtmButton.addEventListener("click", () => chrome.runtime.sendMessage({ action: "gtm" }));
   elements.sortModalBackground.addEventListener("click", (e) => e.target === elements.sortModalBackground && toggleModal("sort-modal", false));
   elements.filterModalBackground.addEventListener("click", (e) => e.target === elements.filterModalBackground && toggleModal("filter-modal", false));
   elements.gtmModalBackground.addEventListener("click", (e) => e.target === elements.gtmModalBackground && toggleModal("gtm-modal", false));
@@ -436,8 +441,20 @@ function addTooltipListeners(elements) {
   });
 }
 
-function checkGTM() {
-  chrome.runtime.sendMessage({ action: "gtm" });
+function checkGTM(ids) {
+  // chrome.runtime.sendMessage({ action: "gtm" });
+
+  const containerListElement = document.getElementById("gtm-container-list");
+
+  if (containerListElement) {
+    containerListElement.innerHTML = "";
+
+    ids.forEach((gtmID) => {
+      const idElement = document.createElement("div");
+      idElement.textContent = gtmID;
+      containerListElement.appendChild(idElement);
+    });
+  }
 
   toggleModal("gtm-modal", true);
 }

@@ -24,7 +24,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
       console.log("GTM Container ID:", gtmIds);
 
-      // chrome.runtime.sendMessage({ action: "send_gtm_ids", data: gtmIds });
+      chrome.runtime.sendMessage({ action: "send_gtm_ids", data: gtmIds });
       break;
   }
 });

@@ -35,6 +35,10 @@ chrome.runtime.onMessage.addListener((message) => {
           chrome.tabs.sendMessage(tabId, { action: "extract_gtm" });
         });
         break;
+      case "send_gtm_ids":
+        console.log("send_gtm_ids 명령 수신", message.data);
+        chrome.runtime.sendMessage({ action: "gtm_containers", tabId, data: message.data });
+        break;
     }
   });
 
