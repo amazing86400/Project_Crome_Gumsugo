@@ -50,7 +50,9 @@ function createRequestList(data) {
 
     requestEntry.innerHTML = `
       <div class="ga4-request-row">
-        <span class="ga4-event-name">${event.en}</span>
+        <span class="ga4-event-name">
+          <div event-name="${event.en}">${event.en}</div>
+        </span>
         <span class="ga4-property-id">${event.tid}</span>
         <span class="ga4-event-time">${date}</span>
         <div class="copy-btn-container">
@@ -294,6 +296,7 @@ document.addEventListener("DOMContentLoaded", () => {
     filterSave: document.getElementById("filter-save"),
     highLight: document.getElementById("highlight_parameter"),
     highLightList: document.querySelector(".highLight-list"),
+    gtmOk: document.getElementById('gtm-check'),
   };
 
   elements.playButton.addEventListener("click", () => togglePlay(elements));
@@ -306,6 +309,7 @@ document.addEventListener("DOMContentLoaded", () => {
   elements.sortModalBackground.addEventListener("click", (e) => e.target === elements.sortModalBackground && toggleModal("sort-modal", false));
   elements.filterModalBackground.addEventListener("click", (e) => e.target === elements.filterModalBackground && toggleModal("filter-modal", false));
   elements.gtmModalBackground.addEventListener("click", (e) => e.target === elements.gtmModalBackground && toggleModal("gtm-modal", false));
+  elements.gtmOk.addEventListener("click", (e) => e.target === elements.gtmOk && toggleModal("gtm-modal", false));
   elements.sortSave.addEventListener("click", saveSortOrder);
   elements.filterSave.addEventListener("click", saveFilterOrder);
 

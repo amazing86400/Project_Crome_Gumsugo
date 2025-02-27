@@ -79,9 +79,11 @@
 }
 
 body {
-  font-family: Arial, sans-serif;
+  font-family: "noto";
+  /* font-family: Arial, sans-serif; */
   margin: 0;
   padding: 0;
+  background-color: #FAFAFA;
 }
 
 .section.tools {
@@ -98,7 +100,7 @@ body {
 
 .section.data {
   margin-top: 30px;
-  padding: 0px 10px 10px 10px;
+  /* padding: 0px 10px 10px 10px; */
 }
 
 button {
@@ -311,16 +313,25 @@ button svg:hover g {
   background: #f9f9f9;
 }
 
+#ga4-data-container > *:nth-child(even) {
+  background-color: #ededed;
+}
+
 .ga4-request {
-  border: 1px solid #ccc;
-  background: #fff;
-  padding: 10px;
-  margin-bottom: 5px;
+  /* border: 1px solid #ccc; */
+  /* background: #fff; */
+  /* padding: 10px; */
+  /* margin-bottom: 5px; */
   cursor: pointer;
 }
 
 .ga4-request:hover {
-  background: #f1f1f1;
+  /* background: #f1f1f1; */
+  background-color: #BBDEFB !important;
+}
+
+.ga4-request.expanded {
+  background-color: #BBDEFB;
 }
 
 .ga4-details {
@@ -331,43 +342,77 @@ button svg:hover g {
 }
 
 .ga4-request.expanded .ga4-details {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   display: block;
+  user-select: none;
 }
 
 .ga4-request-row {
   display: flex;
-  justify-content: space-between;
+  padding: 5px;
+  /* justify-content: space-between; */
   align-items: center;
   /* width: 100%; */
-  padding: 8px 12px;
-  border-bottom: 1px solid #ddd;
-  font-size: 14px;
-  background: #fff;
+  /* padding: 8px 12px; */
+  /* border-bottom: 1px solid #ddd; */
+  /* font-size: 14px; */
+  /* background: #fff; */
+}
+
+.ga4-event-name, .ga4-property-id, .ga4-event-time {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: center;
+  color: #3b4351;
 }
 
 .ga4-event-name {
-  flex: 3;
-  text-align: left;
-  font-weight: bold;
+  display: flex;
+  flex: 1;
+  text-align: center;
+  justify-content: center;
+  /* text-align: left; */
+  /* font-weight: bold; */
+}
+
+.ga4-event-name > div {
+  user-select: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding: 0.3em;
+  background-color: #f1ffdb;
+  line-height: 1.25;
+  border-radius: 0.1rem;
+  width: 80px;
+  font-size: 0.95em;
 }
 
 .ga4-property-id {
   flex: 2;
   text-align: center;
-  color: #555;
+  font-size: 14px;
+  /* color: #555; */
 }
 
 .ga4-event-time {
+  user-select: none;
   flex: 3;
-  text-align: right;
-  color: #777;
+  text-align: center;
+  font-size: 14px;
+  /* color: #777; */
 }
 
 .copy-btn-container {
-  position: relative;
-  display: flex;
-  align-items: center;
-  gap: 8px;
+  /* flex: 4; */
+  text-align: right;
+  /* position: relative; */
+  /* display: flex; */
+  /* align-items: center; */
+  /* gap: 8px; */
 }
 
 .copy-btn {
