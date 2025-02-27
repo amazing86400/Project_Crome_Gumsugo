@@ -5,6 +5,7 @@ let propertyFilter;
 let eventFilter;
 let highLightValue = [];
 let data = [];
+let eventIdx = 1;
 
 chrome.devtools.panels.create("GubGub", "", "devtools.html", function (panel) {
   console.log("GubGub DevTools 패널이 생성됨");
@@ -31,6 +32,8 @@ chrome.runtime.onMessage.addListener((message) => {
 });
 
 function createLodingUrl(data) {
+  eventIdx = 1;
+
   const url = data;
   const ga4Container = document.getElementById("ga4-data-container");
 
@@ -65,6 +68,7 @@ function createRequestList(data) {
 
     requestEntry.innerHTML = `
       <div class="ga4-request-row">
+        <span class="ga4-event-index">${eventIdx}</span>
         <span class="ga4-event-name">
           <div event-name="${event.en}">${event.en}</div>
         </span>
@@ -75,6 +79,8 @@ function createRequestList(data) {
         </div>
       </div>
     `;
+
+    eventIdx++;
 
     const copyButton = requestEntry.querySelector(".copy-btn");
 
@@ -377,6 +383,7 @@ function toggleLock({ lockButton, lockIcon, playButton }) {
 
 function clearGA4Data(container) {
   data = [];
+  eventIdx = 1;
   container.innerHTML = "";
 }
 
