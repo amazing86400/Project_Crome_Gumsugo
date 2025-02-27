@@ -10,6 +10,12 @@ chrome.runtime.onConnect.addListener((port) => {
   }
 });
 
+chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+  if (changeInfo.status === "loading") {
+    chrome.runtime.sendMessage({ action: "load", tabId, data: tab.url });
+  }
+});
+
 chrome.runtime.onMessage.addListener((message) => {
   if (!message.action) return;
 

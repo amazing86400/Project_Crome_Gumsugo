@@ -17,7 +17,7 @@ port.onDisconnect.addListener(() => {
 });
 
 chrome.runtime.onMessage.addListener((message) => {
-  if ((message.action !== "gtm_containers" && message.action !== "ga4_event") || message.tabId !== chrome.devtools.inspectedWindow.tabId) return;
+  if ((message.action !== "gtm_containers" && message.action !== "ga4_event" && message.action !== "load") || message.tabId !== chrome.devtools.inspectedWindow.tabId) return;
 
   if (message.action === "ga4_event") {
     const event = message.data;
@@ -25,8 +25,23 @@ chrome.runtime.onMessage.addListener((message) => {
     createRequestList(event);
   } else if (message.action === "gtm_containers") {
     checkGTM(message.data);
+  } else if (message.action === "load") {
+    createLodingUrl(message.data);
   }
 });
+
+function createLodingUrl(data) {
+  const url = data;
+  const ga4Container = document.getElementById("ga4-data-container");
+
+  const requestEntry = document.createElement("div");
+  requestEntry.classList.add("ga4-page-url");
+  requestEntry.innerHTML = `
+      <div>${url}</div>
+    `;
+
+  ga4Container.appendChild(requestEntry);
+}
 
 function createRequestList(data) {
   const event = data;
@@ -296,7 +311,7 @@ document.addEventListener("DOMContentLoaded", () => {
     filterSave: document.getElementById("filter-save"),
     highLight: document.getElementById("highlight_parameter"),
     highLightList: document.querySelector(".highLight-list"),
-    gtmOk: document.getElementById('gtm-check'),
+    gtmOk: document.getElementById("gtm-check"),
   };
 
   elements.playButton.addEventListener("click", () => togglePlay(elements));
