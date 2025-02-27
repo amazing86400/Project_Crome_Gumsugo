@@ -103,7 +103,7 @@ body {
   /* padding: 0px 10px 10px 10px; */
 }
 
-button {
+.tool-btn {
   background: none;
   border: none;
   cursor: pointer;
@@ -506,6 +506,64 @@ button svg:hover g {
   opacity: 0;
 }
 
+.modal-title {
+  font-size: 14px;
+  margin-bottom: 2px;
+  color: #3b4351;
+  user-select: none;
+}
+
+h2 {
+  margin-top: 0px;
+}
+
+textarea, input {
+  border: 0.05rem solid #bcc3ce;
+  border-radius: 0.1rem;
+  padding: 0.25rem 0.4rem;
+  transition: background 0.2s, border 0.2s, box-shadow 0.2s, color 0.2s;
+  width: 200px;
+  height: 40px;
+  resize: none;
+  margin-bottom: 5px;
+}
+
+textarea:focus, input:focus {
+  box-shadow: 0 0 0 0.1rem rgba(33, 150, 243, 0.2);
+  border-color: #2196F3;
+}
+
+.modal-btn {
+  margin-top: 20px;
+  font-size: 14px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.reset-btn {
+  cursor: pointer;
+  margin-left: 10px;
+  user-select: none;
+  color: #bcc3ce;
+}
+
+.save-btn {
+  cursor: pointer;
+  margin-right: 20px;
+  user-select: none;
+  color: #2196F3;
+}
+
 .highlight {
   background-color: yellow !important;
 }
+
+.modal-close {
+  float: right;
+  padding: 0px 10px;
+  font-weight: 700;
+  font-size: 1.3rem;
+  color: rgb(48, 58, 66);
+  cursor: pointer;
+}
+

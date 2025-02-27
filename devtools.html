@@ -9,23 +9,23 @@
   <body>
     <div class="section tools">
       <div class="tool-group">
-        <button id="play-btn" data-tooltip="Run automated GA4 validation">
+        <button class="tool-btn" id="play-btn" data-tooltip="Run automated GA4 validation">
           <img id="play-icon" src="./images/play.png" alt="play" />
         </button>
         <div class="vertical-divider"></div>
-        <button id="lock-btn" data-tooltip="Prevent page navigation">
+        <button class="tool-btn" id="lock-btn" data-tooltip="Prevent page navigation">
           <img id="lock-icon" src="./images/open.png" alt="lock" />
         </button>
         <div class="vertical-divider"></div>
-        <button id="clear-btn" data-tooltip="Clear captured data">
+        <button class="tool-btn" id="clear-btn" data-tooltip="Clear captured data">
           <img id="clear-icon" src="./images/delete.png" alt="clear" />
         </button>
         <div class="vertical-divider"></div>
-        <button id="filter-btn" data-tooltip="Filter captured data">
+        <button class="tool-btn" id="filter-btn" data-tooltip="Filter captured data">
           <img id="filter-icon" src="./images/filter.png" alt="filter" />
         </button>
         <div class="vertical-divider"></div>
-        <button id="sort-btn" data-tooltip="Sort captured data">
+        <button class="tool-btn" id="sort-btn" data-tooltip="Sort captured data">
           <svg id="sort-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
             <g fill="none" stroke="#5f6368" stroke-width="2" stroke-linecap="round">
               <line x1="6" y1="4" x2="6" y2="20"></line>
@@ -48,18 +48,22 @@
       <div class="modal-background" style="display: none"></div>
       <div class="modal-area remove">
         <div>
-          <div>Filter by Account ID</div>
-          <div>Custom Dimension-User</div>
+          <div class="modal-close">&times;</div>
+          <h2>Sort Parameters</h2>
+          <div class="modal-title">Custom Dimension-User</div>
           <textarea data-event-type="user"></textarea>
-          <div>Custom Dimension-Event</div>
+          <div class="modal-title">Custom Dimension-Event</div>
           <textarea data-event-type="event"></textarea>
-          <div>Custom Metric</div>
+          <div class="modal-title">Custom Metric</div>
           <textarea data-event-type="metric"></textarea>
-          <div>ecommerce Parameter</div>
+          <div class="modal-title">ecommerce Parameter</div>
           <textarea data-event-type="ecommerce"></textarea>
-          <div>Item Parameter</div>
+          <div class="modal-title">Item Parameter</div>
           <textarea data-event-type="item"></textarea>
-          <button id="sort-save" type="button">Save</button>
+          <div class="modal-btn">
+            <div class="reset-btn" id="sort-reset" type="button">Reset Sort</div>
+            <div class="save-btn" id="sort-save" type="button">Save Sort</div>
+          </div>
         </div>
       </div>
     </div>
@@ -67,14 +71,19 @@
       <div class="modal-background" style="display: none"></div>
       <div class="modal-area remove">
         <div>
-          <div>Filter by Account ID</div>
+          <div class="modal-close">&times;</div>
+          <h2>Filter Filter Filter</h2>
+          <div class="modal-title">Filter by Property ID</div>
           <input id="filter-account" />
-          <div>Filter by Event Name</div>
+          <div class="modal-title">Filter by Event Name</div>
           <input id="filter-event" />
-          <div>Highlight parameters</div>
+          <div class="modal-title">Highlight parameters</div>
           <input id="highlight_parameter" />
           <div class="highLight-list"></div>
-          <button id="filter-save" type="button">Save</button>
+          <div class="modal-btn">
+            <div class="reset-btn" id="filter-reset" type="button">Reset Filters</div>
+            <div class="save-btn" id="filter-save" type="button">Save Filters</div>
+          </div>
         </div>
       </div>
     </div>
@@ -82,9 +91,10 @@
       <div class="modal-background" style="display: none"></div>
       <div class="modal-area remove">
         <div>
-          <div id="gtm-container-label">GTM Container ID</div>
-          <div id="gtm-container-list"></div>
-          <button id="gtm-check" type="button">OK</button>
+          <div class="modal-close">&times;</div>
+          <h2 id="gtm-container-label">GTM Container ID</h2>
+          <div class="modal-title" id="gtm-container-list"></div>
+          <div class="modal-btn" id="gtm-check" type="button">OK</div>
         </div>
       </div>
     </div>
