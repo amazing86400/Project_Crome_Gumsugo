@@ -364,12 +364,12 @@ function clearGA4Data(container) {
 function toggleModal(element, open) {
   document.querySelectorAll(".modal-background").forEach((modal) => {
     modal.style.display = "none";
-    modal.nextElementSibling.querySelector("div").classList.add("remove");
+    modal.nextElementSibling.classList.add("remove");
   });
 
   if (open) {
     const idName = document.getElementById(element);
-    const modalArea = idName.querySelector(".modal-area > div");
+    const modalArea = idName.querySelector(".modal-area");
     const modalBackground = idName.querySelector(".modal-background");
 
     modalBackground.style.display = "block";
