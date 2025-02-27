@@ -11,7 +11,7 @@ chrome.runtime.onConnect.addListener((port) => {
 });
 
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-  if (changeInfo.status === "loading") {
+  if (changeInfo.status === "complete") {
     chrome.runtime.sendMessage({ action: "load", tabId, data: tab.url });
   }
 });
