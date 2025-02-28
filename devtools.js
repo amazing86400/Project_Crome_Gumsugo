@@ -18,7 +18,7 @@ port.onDisconnect.addListener(() => {
 });
 
 chrome.runtime.onMessage.addListener((message) => {
-  if ((message.action !== "gtm_containers" && message.action !== "ga4_event" && message.action !== "load") || message.tabId !== chrome.devtools.inspectedWindow.tabId) return;
+  if ((message.action !== "gtm_containers" && message.action !== "ga4_event" && message.action !== "navigation") || message.tabId !== chrome.devtools.inspectedWindow.tabId) return;
 
   if (message.action === "ga4_event") {
     const event = message.data;
@@ -26,7 +26,7 @@ chrome.runtime.onMessage.addListener((message) => {
     createRequestList(event);
   } else if (message.action === "gtm_containers") {
     checkGTM(message.data);
-  } else if (message.action === "load") {
+  } else if (message.action === "navigation") {
     createLodingUrl(message.data);
   }
 });

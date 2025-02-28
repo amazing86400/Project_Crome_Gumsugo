@@ -10,10 +10,10 @@ chrome.runtime.onConnect.addListener((port) => {
   }
 });
 
-chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-  if (changeInfo.status === "loading") {
-    chrome.runtime.sendMessage({ action: "load", tabId, data: tab.url });
-  }
+chrome.webNavigation.onCommitted.addListener((details) => {
+  if (details.frameId !== 0) return;
+
+  chrome.runtime.sendMessage({ action: "navigation", tabId: details.tabId, data: details.url });
 });
 
 chrome.runtime.onMessage.addListener((message) => {

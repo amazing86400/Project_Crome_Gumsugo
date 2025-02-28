@@ -10,6 +10,6 @@
     "default_title": "GubGub"
   },
   "devtools_page": "devtools.html",
-  "permissions": ["activeTab", "tabs", "webRequest", "scripting"],
+  "permissions": ["activeTab", "tabs", "webRequest", "scripting", "webNavigation"],
   "host_permissions": ["<all_urls>"]
 }
