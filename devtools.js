@@ -302,37 +302,58 @@ document.addEventListener("DOMContentLoaded", () => {
   const elements = {
     playButton: document.getElementById("play-btn"),
     playIcon: document.getElementById("play-icon"),
+
     lockButton: document.getElementById("lock-btn"),
     lockIcon: document.getElementById("lock-icon"),
+
     clearButton: document.getElementById("clear-btn"),
+
     filterButton: document.getElementById("filter-btn"),
     filterModalBackground: document.querySelector("#filter-modal > .modal-background"),
+    filterModalClose: document.querySelector("#filter-modal > div.modal-area > div > div.modal-close"),
+    filterReset: document.getElementById("filter-reset"),
+    filterSave: document.getElementById("filter-save"),
+
     sortButton: document.getElementById("sort-btn"),
     sortModalBackground: document.querySelector("#sort-modal > .modal-background"),
+    sortModalClose: document.querySelector("#sort-modal > div.modal-area > div > div.modal-close"),
+    sortReset: document.getElementById("sort-reset"),
+    sortSave: document.getElementById("sort-save"),
+
     gtmButton: document.getElementById("gtm-btn"),
     gtmModalBackground: document.querySelector("#gtm-modal > .modal-background"),
-    tooltip: document.getElementById("tooltip"),
-    ga4Container: document.getElementById("ga4-data-container"),
-    sortSave: document.getElementById("sort-save"),
-    filterSave: document.getElementById("filter-save"),
+    gtmModalClose: document.querySelector("#gtm-modal > div.modal-area > div > div.modal-close"),
+    gtmOk: document.getElementById("gtm-check"),
+
     highLight: document.getElementById("highlight_parameter"),
     highLightList: document.querySelector(".highLight-list"),
-    gtmOk: document.getElementById("gtm-check"),
+
+    ga4Container: document.getElementById("ga4-data-container"),
+
+    tooltip: document.getElementById("tooltip"),
   };
 
   elements.playButton.addEventListener("click", () => togglePlay(elements));
   elements.lockButton.addEventListener("click", () => toggleLock(elements));
   elements.clearButton.addEventListener("click", () => clearGA4Data(elements.ga4Container));
+
   elements.sortButton.addEventListener("click", () => toggleModal("sort-modal", true));
-  elements.filterButton.addEventListener("click", () => toggleModal("filter-modal", true));
-  // elements.gtmButton.addEventListener("click", () => searchGTM());
-  elements.gtmButton.addEventListener("click", () => chrome.runtime.sendMessage({ action: "gtm" }));
   elements.sortModalBackground.addEventListener("click", (e) => e.target === elements.sortModalBackground && toggleModal("sort-modal", false));
-  elements.filterModalBackground.addEventListener("click", (e) => e.target === elements.filterModalBackground && toggleModal("filter-modal", false));
-  elements.gtmModalBackground.addEventListener("click", (e) => e.target === elements.gtmModalBackground && toggleModal("gtm-modal", false));
-  elements.gtmOk.addEventListener("click", (e) => e.target === elements.gtmOk && toggleModal("gtm-modal", false));
+  elements.sortModalClose.addEventListener("click", () => toggleModal("sort-modal", false));
+  elements.sortReset.addEventListener("click", () => resetOptions("sort"));
   elements.sortSave.addEventListener("click", saveSortOrder);
+
+  elements.filterButton.addEventListener("click", () => toggleModal("filter-modal", true));
+  elements.filterModalBackground.addEventListener("click", (e) => e.target === elements.filterModalBackground && toggleModal("filter-modal", false));
+  elements.filterModalClose.addEventListener("click", () => toggleModal("filter-modal", false));
+  elements.filterReset.addEventListener("click", () => resetOptions("filter"));
   elements.filterSave.addEventListener("click", saveFilterOrder);
+  // elements.gtmButton.addEventListener("click", () => searchGTM());
+
+  elements.gtmButton.addEventListener("click", () => chrome.runtime.sendMessage({ action: "gtm" }));
+  elements.gtmModalBackground.addEventListener("click", (e) => e.target === elements.gtmModalBackground && toggleModal("gtm-modal", false));
+  elements.gtmModalClose.addEventListener("click", () => toggleModal("gtm-modal", false));
+  elements.gtmOk.addEventListener("click", (e) => e.target === elements.gtmOk && toggleModal("gtm-modal", false));
 
   addTooltipListeners(elements);
 
@@ -400,6 +421,15 @@ function toggleModal(element, open) {
 
     modalBackground.style.display = "block";
     modalArea.classList.remove("remove");
+  }
+}
+
+function resetOptions(type) {
+  if (type === "sort") {
+    cleanedSortObj = {};
+    document.querySelectorAll("textarea[data-event-type]").forEach((textarea) => {
+      textarea.value = "";
+    });
   }
 }
 

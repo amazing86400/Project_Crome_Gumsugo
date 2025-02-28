@@ -1,6 +1,4 @@
 let tabRequestData = {};
-// let lastLoadingTab = false;
-let test;
 
 chrome.runtime.onConnect.addListener((port) => {
   if (port.name === "devtools") {
@@ -13,15 +11,8 @@ chrome.runtime.onConnect.addListener((port) => {
 });
 
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-  console.log("페이지 로딩:", changeInfo.status);
   if (changeInfo.status === "loading") {
-    // if (lastLoadingTab) return;
-    if (test === tab.url || changeInfo.url) return;
-    // lastLoadingTab = true;
     chrome.runtime.sendMessage({ action: "load", tabId, data: tab.url });
-    test = tab.url;
-  } else if (changeInfo.status === "complete") {
-    // lastLoadingTab = false;
   }
 });
 
