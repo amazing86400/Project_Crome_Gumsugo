@@ -79,7 +79,8 @@
 }
 
 body {
-  font-family: "noto";
+  font-family: "Noto Sans";
+  /* font-family: "noto"; */
   /* font-family: Arial, sans-serif; */
   margin: 0;
   padding: 0;
@@ -131,6 +132,7 @@ button img {
   width: 20px;
   height: 20px;
   transition: transform 0.3s ease;
+  user-select: none;
 }
 
 button:hover img {
@@ -280,13 +282,17 @@ button svg:hover g {
   width: 100%;
   border-collapse: collapse;
   table-layout: fixed;
-  margin-top: 5px;
+  /* margin-top: 5px; */
   background: #fff;
 }
 
 .ga4-table th,
 .ga4-table td {
-  border: 1px solid #ddd;
+  /* border: 1px solid #ddd; */
+  color: #262a30;
+  border-bottom: 1px solid #ccc;
+  border-right: 1px solid #ccc;
+  border-left: 1px solid #ccc;
   padding: 5px;
   text-align: left;
   word-wrap: break-word;
@@ -297,6 +303,8 @@ button svg:hover g {
 .ga4-table th:nth-child(1),
 .ga4-table td:nth-child(1) {
   width: 25%;
+  font-weight: 530;
+  color: #454c57;
 }
 
 .ga4-table th:nth-child(2),
@@ -313,16 +321,27 @@ button svg:hover g {
   background: #f9f9f9;
 }
 
-#ga4-data-container > *:nth-child(even) {
+#ga4-data-container > .ga4-request:nth-child(even) {
   background-color: #ededed;
 }
 
-.ga4-request {
-  /* border: 1px solid #ccc; */
-  /* background: #fff; */
-  /* padding: 10px; */
-  /* margin-bottom: 5px; */
-  cursor: pointer;
+.ga4-page-url {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
+  padding: 0.3em 2em;
+  background-color: #FFF;
+  font-size: 0.9em;
+  color: #7f7d7d;
+  border-top: 1px solid #dadee4;
+  border-bottom: 1px solid #dadee4;
+  font-size: 12px;
+  user-select: none;
+}
+
+.ga4-page-url > div {
+  display: inline;
 }
 
 .ga4-request:hover {
@@ -338,6 +357,7 @@ button svg:hover g {
   display: none;
   padding: 10px;
   border-top: 1px solid #ddd;
+  border-bottom: 1px solid #ddd;
   background: #f9f9f9;
 }
 
@@ -346,13 +366,14 @@ button svg:hover g {
   overflow: hidden;
   text-overflow: ellipsis;
   display: block;
-  user-select: none;
 }
 
 .ga4-request-row {
   display: flex;
   padding: 5px;
-  /* justify-content: space-between; */
+  cursor: pointer;
+  user-select: none;
+  justify-content: space-around;
   align-items: center;
   /* width: 100%; */
   /* padding: 8px 12px; */
@@ -361,58 +382,99 @@ button svg:hover g {
   /* background: #fff; */
 }
 
+.ga4-event-index {
+  width: 16px;
+}
+
 .ga4-event-name, .ga4-property-id, .ga4-event-time {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  text-align: center;
+  /* text-align: center; */
   color: #3b4351;
 }
 
 .ga4-event-name {
   display: flex;
-  flex: 1;
+  align-items: center;
+  /* justify-content: center; */
+  /* width: 25%; */
   text-align: center;
-  justify-content: center;
   /* text-align: left; */
   /* font-weight: bold; */
 }
 
-.ga4-event-name > div {
+.label > div {
   user-select: none;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   padding: 0.3em;
   background-color: #f1ffdb;
-  line-height: 1.25;
-  border-radius: 0.1rem;
+  border-radius: 8px;
   width: 80px;
   font-size: 0.95em;
+  height: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+[event-name="page_view"] {
+  background-color: #dbedff !important;
+}
+
+.googleAnalytics {
+  margin-left: 10px;
+  line-height: 8px;
+  font-size: 13px;
+  color: #3b4351;
+}
+
+.googleAnalytics::before {
+  content: url(./images/ga4.png);
+  padding: 0.5em;
+  vertical-align: sub;
 }
 
 .ga4-property-id {
-  flex: 2;
-  text-align: center;
-  font-size: 14px;
+  width: 15%;
+  margin-left: 20px;
+  /* text-align: center; */
+  font-size: 13px;
   /* color: #555; */
+}
+
+.ga4-title-name {
+  margin-left: 10px;
+  cursor: pointer;
+  width: 23%;
+}
+
+.name > div {
+  user-select: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  /* padding: 0.3em; */
+  /* background-color: #f1ffdb; */
+  /* line-height: 1.25; */
+  /* border-radius: 0.1rem; */
+  /* width: 80px; */
+  /* font-size: 0.95em; */
+  color: #3800ff;
+  font-size: 13px;
 }
 
 .ga4-event-time {
   user-select: none;
-  flex: 3;
-  text-align: center;
-  font-size: 14px;
-  /* color: #777; */
+  text-align: left;
+  font-size: 12px;
+  width: 17%;
 }
 
 .copy-btn-container {
-  /* flex: 4; */
+  width: 50px;
   text-align: right;
-  /* position: relative; */
-  /* display: flex; */
-  /* align-items: center; */
-  /* gap: 8px; */
 }
 
 .copy-btn {
@@ -430,9 +492,9 @@ button svg:hover g {
 }
 
 .ga4-sublist {
-  margin-top: 5px;
-  padding: 5px;
-  border: 1px solid #ddd;
+  /* margin-top: 5px; */
+  /* padding: 5px; */
+  /* border: 1px solid #ddd; */
   background: #fff;
 }
 
@@ -440,17 +502,22 @@ button svg:hover g {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-weight: bold;
-  /* cursor: pointer; */
+  font-weight: 600;
+  cursor: pointer;
   padding: 5px;
   background: #f1f1f1;
-  border-bottom: 1px solid #ccc;
-  /* position: relative; */
+  user-select: none;
+  border: 1px solid #ccc;
+  font-size: 14px;
+  color: #3b4351;
+  /* border-top: 1px solid #ccc;
+  border-right: 1px solid #ccc;
+  border-left: 1px solid #ccc; */
 }
 
 .ga4-sublist-content {
   display: none;
-  padding: 5px;
+  /* padding: 5px; */
 }
 
 .ga4-sublist.expanded .ga4-sublist-content {
@@ -507,7 +574,8 @@ button svg:hover g {
 }
 
 .modal-title {
-  font-size: 14px;
+  font-size: 13px;
+  font-weight: 500;
   margin-bottom: 2px;
   color: #3b4351;
   user-select: none;
@@ -518,8 +586,8 @@ h2 {
 }
 
 textarea, input {
-  border: 0.05rem solid #bcc3ce;
-  border-radius: 0.1rem;
+  border: 0.1rem solid #bcc3ce;
+  border-radius: 7px;
   padding: 0.25rem 0.4rem;
   transition: background 0.2s, border 0.2s, box-shadow 0.2s, color 0.2s;
   width: 200px;
@@ -533,10 +601,14 @@ textarea:focus, input:focus {
   border-color: #2196F3;
 }
 
-.modal-btn {
+.modal-btn, .gtm-save-btn {
   margin-top: 20px;
   font-size: 14px;
   display: flex;
+  justify-content: flex-end;
+}
+
+#sort-modal .modal-btn {
   justify-content: space-between;
 }
 
@@ -547,7 +619,7 @@ textarea:focus, input:focus {
   color: #bcc3ce;
 }
 
-.save-btn {
+.save-btn, .gtm-save-btn {
   cursor: pointer;
   margin-right: 20px;
   user-select: none;
@@ -566,4 +638,65 @@ textarea:focus, input:focus {
   color: rgb(48, 58, 66);
   cursor: pointer;
 }
+
+.property-list, .event-list, .highLight-list {
+  display: flex;
+  flex-wrap: wrap;
+  margin-bottom: 15px;
+}
+
+.property, .event {
+  color: #474747;
+  font-weight: 360;
+  background: #ededed;
+  border: 1px solid #ededed;
+  padding: 5px;
+  border-radius: 5px;
+  font-size: 13px;
+  margin: 10px 10px 0px 0px;
+  cursor: pointer;
+  user-select: none;
+  text-align: center;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+  transition: all 0.3s cubic-bezier(.25,.8,.25,1);
+}
+
+.property.checked {
+  background-color: #dbedff;
+  border: 1px solid #dbedff;
+}
+
+.event.checked {
+  background-color: #f1ffdb;
+  border: 1px solid #f1ffdb;
+}
+
+.high-light {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  border: 1px solid yellow;
+  padding: 5px;
+  border-radius: 5px;
+  font-size: 13px;
+  margin: 10px 10px 0px 0px;
+  background-color: yellow;
+  user-select: none;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+  transition: all 0.2s cubic-bezier(.25,.8,.25,1);
+}
+
+.high-light > div {
+  font-size: 13px;
+}
+
+.cancel {
+  margin-left: 7px;
+  cursor: pointer;
+}
+
+#filter-modal input {
+  height: 20px;
+}
+
 
