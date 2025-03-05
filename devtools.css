@@ -296,7 +296,8 @@ button svg:hover g {
   padding: 5px;
   text-align: left;
   word-wrap: break-word;
-  overflow: hidden;
+  white-space: normal;
+  overflow-wrap: break-word;
   /* white-space: nowrap; */
 }
 
