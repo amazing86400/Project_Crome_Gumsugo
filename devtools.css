@@ -80,11 +80,9 @@
 
 body {
   font-family: "Noto Sans";
-  /* font-family: "noto"; */
-  /* font-family: Arial, sans-serif; */
   margin: 0;
   padding: 0;
-  background-color: #FAFAFA;
+  background-color: #fafafa;
 }
 
 .section.tools {
@@ -101,7 +99,6 @@ body {
 
 .section.data {
   margin-top: 30px;
-  /* padding: 0px 10px 10px 10px; */
 }
 
 .tool-btn {
@@ -282,13 +279,11 @@ button svg:hover g {
   width: 100%;
   border-collapse: collapse;
   table-layout: fixed;
-  /* margin-top: 5px; */
   background: #fff;
 }
 
 .ga4-table th,
 .ga4-table td {
-  /* border: 1px solid #ddd; */
   color: #262a30;
   border-bottom: 1px solid #ccc;
   border-right: 1px solid #ccc;
@@ -298,7 +293,6 @@ button svg:hover g {
   word-wrap: break-word;
   white-space: normal;
   overflow-wrap: break-word;
-  /* white-space: nowrap; */
 }
 
 .ga4-table th:nth-child(1),
@@ -332,7 +326,7 @@ button svg:hover g {
   text-overflow: ellipsis;
   width: 100%;
   padding: 0.3em 2em;
-  background-color: #FFF;
+  background-color: #fff;
   font-size: 0.9em;
   color: #7f7d7d;
   border-top: 1px solid #dadee4;
@@ -346,12 +340,11 @@ button svg:hover g {
 }
 
 .ga4-request:hover {
-  /* background: #f1f1f1; */
-  background-color: #BBDEFB !important;
+  background-color: #bbdefb !important;
 }
 
 .ga4-request.expanded {
-  background-color: #BBDEFB;
+  background-color: #bbdefb;
 }
 
 .ga4-details {
@@ -376,33 +369,25 @@ button svg:hover g {
   user-select: none;
   justify-content: space-around;
   align-items: center;
-  /* width: 100%; */
-  /* padding: 8px 12px; */
-  /* border-bottom: 1px solid #ddd; */
-  /* font-size: 14px; */
-  /* background: #fff; */
 }
 
 .ga4-event-index {
   width: 16px;
 }
 
-.ga4-event-name, .ga4-property-id, .ga4-event-time {
+.ga4-event-name,
+.ga4-property-id,
+.ga4-event-time {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  /* text-align: center; */
   color: #3b4351;
 }
 
 .ga4-event-name {
   display: flex;
   align-items: center;
-  /* justify-content: center; */
-  /* width: 25%; */
   text-align: center;
-  /* text-align: left; */
-  /* font-weight: bold; */
 }
 
 .label > div {
@@ -413,7 +398,7 @@ button svg:hover g {
   padding: 0.3em;
   background-color: #f1ffdb;
   border-radius: 8px;
-  width: 80px;
+  width: 140px;
   font-size: 0.95em;
   height: 15px;
   display: flex;
@@ -425,7 +410,7 @@ button svg:hover g {
 }
 
 .googleAnalytics {
-  margin-left: 10px;
+  margin: 0px 10px;
   line-height: 8px;
   font-size: 13px;
   color: #3b4351;
@@ -440,9 +425,7 @@ button svg:hover g {
 .ga4-property-id {
   width: 15%;
   margin-left: 20px;
-  /* text-align: center; */
   font-size: 13px;
-  /* color: #555; */
 }
 
 .ga4-title-name {
@@ -456,12 +439,6 @@ button svg:hover g {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  /* padding: 0.3em; */
-  /* background-color: #f1ffdb; */
-  /* line-height: 1.25; */
-  /* border-radius: 0.1rem; */
-  /* width: 80px; */
-  /* font-size: 0.95em; */
   color: #3800ff;
   font-size: 13px;
 }
@@ -485,7 +462,6 @@ button svg:hover g {
   opacity: 0.7;
   margin-left: 7px;
   transition: opacity 0.2s ease-in-out;
-  /* position: relative; */
 }
 
 .copy-btn:hover {
@@ -494,8 +470,6 @@ button svg:hover g {
 
 .ga4-sublist {
   margin-top: 5px;
-  /* padding: 5px; */
-  /* border: 1px solid #ddd; */
   background: #fff;
 }
 
@@ -511,14 +485,10 @@ button svg:hover g {
   border: 1px solid #ccc;
   font-size: 14px;
   color: #3b4351;
-  /* border-top: 1px solid #ccc;
-  border-right: 1px solid #ccc;
-  border-left: 1px solid #ccc; */
 }
 
 .ga4-sublist-content {
   display: none;
-  /* padding: 5px; */
 }
 
 .ga4-sublist.expanded .ga4-sublist-content {
@@ -562,7 +532,6 @@ button svg:hover g {
 .modal-area > div {
   width: 100%;
   padding: 20px;
-  /* transition: 0.2s ease-out; */
   background: #fff;
   border-radius: 4px;
   box-shadow: rgba(0, 0, 0, 0.16) 0px 3px 6px, rgba(0, 0, 0, 0.23) 0px 3px 6px;
@@ -586,7 +555,8 @@ h2 {
   margin-top: 0px;
 }
 
-textarea, input {
+textarea,
+input {
   border: 0.1rem solid #bcc3ce;
   border-radius: 7px;
   padding: 0.25rem 0.4rem;
@@ -597,12 +567,14 @@ textarea, input {
   margin-bottom: 5px;
 }
 
-textarea:focus, input:focus {
+textarea:focus,
+input:focus {
   box-shadow: 0 0 0 0.1rem rgba(33, 150, 243, 0.2);
-  border-color: #2196F3;
+  border-color: #2196f3;
 }
 
-.modal-btn, .gtm-save-btn {
+.modal-btn,
+.gtm-save-btn {
   margin-top: 20px;
   font-size: 14px;
   display: flex;
@@ -620,11 +592,12 @@ textarea:focus, input:focus {
   color: #bcc3ce;
 }
 
-.save-btn, .gtm-save-btn {
+.save-btn,
+.gtm-save-btn {
   cursor: pointer;
   margin-right: 20px;
   user-select: none;
-  color: #2196F3;
+  color: #2196f3;
 }
 
 .highlight {
@@ -640,13 +613,16 @@ textarea:focus, input:focus {
   cursor: pointer;
 }
 
-.property-list, .event-list, .highLight-list {
+.property-list,
+.event-list,
+.highLight-list {
   display: flex;
   flex-wrap: wrap;
   margin-bottom: 15px;
 }
 
-.property, .event {
+.property,
+.event {
   color: #474747;
   font-weight: 360;
   background: #ededed;
@@ -658,8 +634,8 @@ textarea:focus, input:focus {
   cursor: pointer;
   user-select: none;
   text-align: center;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
-  transition: all 0.3s cubic-bezier(.25,.8,.25,1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
 .property.checked {
@@ -684,7 +660,7 @@ textarea:focus, input:focus {
   background-color: yellow;
   user-select: none;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
-  transition: all 0.2s cubic-bezier(.25,.8,.25,1);
+  transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
 .high-light > div {
@@ -699,5 +675,3 @@ textarea:focus, input:focus {
 #filter-modal input {
   height: 20px;
 }
-
-

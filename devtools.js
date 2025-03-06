@@ -27,6 +27,7 @@ chrome.runtime.onMessage.addListener((message) => {
   } else if (message.action === "gtm_containers") {
     checkGTM(message.data);
   } else if (message.action === "navigation") {
+    data.push({ loadUrl: message.data });
     createLodingUrl(message.data);
   }
 });
@@ -93,7 +94,6 @@ function createRequestList(data) {
     const copyButton = requestEntry.querySelector(".copy-btn");
 
     copyButton.addEventListener("click", (e) => {
-      console.log(e);
       e.stopPropagation();
       copyToClipboard(e.target);
     });
@@ -136,13 +136,11 @@ function createRequestList(data) {
     requestEntry.appendChild(details);
     ga4Container.appendChild(requestEntry);
 
-    // 이렇게 한 이유가 딱히 없으면 title 클릭했을 때 접히도록 수정해야할 듯
     requestEntry.addEventListener("click", (e) => {
-      if (!e.target.closest(".ga4-sublist-title")) {
+      if (e.target.closest(".ga4-request-row")) {
         requestEntry.classList.toggle("expanded");
       }
     });
-    // createRequestList(event);
   }
 }
 
@@ -171,7 +169,6 @@ function copyToClipboard(element) {
     })
     .join("\n\n");
 
-  console.log(formattedText);
   if (formattedText == "") {
     alert("복사할 데이터가 없습니다.");
     return false;
@@ -205,14 +202,6 @@ function createTable(data, title) {
   const table = document.createElement("table");
   table.classList.add("ga4-table");
 
-  // const thead = document.createElement("thead");
-  // thead.innerHTML = `
-  //   <tr>
-  //     <th>Key</th>
-  //     <th>Value</th>
-  //   </tr>
-  // `;
-
   const tbody = document.createElement("tbody");
   tbody.className = title.replace(/\s+/g, "-").toLowerCase();
 
@@ -230,7 +219,6 @@ function createTable(data, title) {
   if (tbody.childElementCount == 0) {
     return;
   }
-  // table.appendChild(thead);
   table.appendChild(tbody);
 
   table.addEventListener("click", (e) => e.stopPropagation());
@@ -323,9 +311,9 @@ document.addEventListener("DOMContentLoaded", () => {
     filterReset: document.getElementById("filter-reset"),
     filterSave: document.getElementById("filter-save"),
 
-    propertyListDiv: document.querySelector('.property-list'),
-    eventListDiv: document.querySelector('.event-list'),
-    eventListDiv: document.querySelector('.event-list'),
+    propertyListDiv: document.querySelector(".property-list"),
+    eventListDiv: document.querySelector(".event-list"),
+    eventListDiv: document.querySelector(".event-list"),
 
     sortButton: document.getElementById("sort-btn"),
     sortModalBackground: document.querySelector("#sort-modal > .modal-background"),
@@ -354,13 +342,11 @@ document.addEventListener("DOMContentLoaded", () => {
   elements.sortModalBackground.addEventListener("click", (e) => e.target === elements.sortModalBackground && toggleModal("sort-modal", false));
   elements.sortModalClose.addEventListener("click", () => toggleModal("sort-modal", false));
   elements.sortReset.addEventListener("click", () => resetOptions("sort"));
-  // elements.sortSave.addEventListener("click", saveSortOrder);
 
   elements.filterButton.addEventListener("click", () => toggleModal("filter-modal", true));
   elements.filterModalBackground.addEventListener("click", (e) => e.target === elements.filterModalBackground && toggleModal("filter-modal", false));
   elements.filterModalClose.addEventListener("click", () => toggleModal("filter-modal", false));
   elements.filterReset.addEventListener("click", () => resetOptions("filter"));
-  // elements.filterSave.addEventListener("click", saveFilterOrder);
 
   elements.propertyListDiv.addEventListener("click", toggleDiv);
   elements.eventListDiv.addEventListener("click", toggleDiv);
@@ -378,12 +364,15 @@ document.addEventListener("DOMContentLoaded", () => {
     if (e.key === "Enter" && elements.highLight.value.trim() !== "") {
       if (!highLightValue.includes(elements.highLight.value)) {
         highLightValue.push(elements.highLight.value);
-        elements.highLightList.insertAdjacentHTML('beforeend', `
+        elements.highLightList.insertAdjacentHTML(
+          "beforeend",
+          `
           <div class="high-light">
             <div class="parameter-name">${elements.highLight.value}</div>
             <div class="cancel">&times;</div>
           </div>
-        `)
+        `
+        );
       }
       elements.highLight.value = "";
       saveFilterOrder();
@@ -394,13 +383,12 @@ document.addEventListener("DOMContentLoaded", () => {
     set(target, property, value) {
       target[property] = value;
       if (!isNaN(property)) {
-        createList('property');
-        createList('event');
+        createList("property");
+        createList("event");
       }
       return true;
-    }
+    },
   });
-
 });
 
 function togglePlay({ playButton, playIcon, lockButton }) {
@@ -436,9 +424,24 @@ function toggleLock({ lockButton, lockIcon, playButton }) {
 }
 
 function clearGA4Data(container) {
-  data = [];
+  data = new Proxy([], {
+    set(target, property, value) {
+      target[property] = value;
+      if (!isNaN(property)) {
+        createList("property");
+        createList("event");
+      }
+      return true;
+    },
+  });
+
   eventIdx = 1;
   container.innerHTML = "";
+
+  const propertyList = document.querySelector(".property-list");
+  const eventList = document.querySelector(".event-list");
+  propertyList.innerHTML = "";
+  eventList.innerHTML = "";
 }
 
 function toggleModal(element, open) {
@@ -459,26 +462,28 @@ function toggleModal(element, open) {
 
 function createList(element) {
   const propertyList = document.querySelector(`.${element}-list`);
-  const propertyNames = element == 'property' ? new Set(data.map(i => i.tid)) : new Set(data.map(i => i.en));
-  const existingPropertyNames = new Set([...propertyList.children].map(li => li.innerHTML));
-  const missingPropertyNames = [...propertyNames].filter(propertyName => !existingPropertyNames.has(propertyName));
+  const propertyNames = element == "property" ? new Set(data.map((i) => i.tid)) : new Set(data.map((i) => i.en));
+  const existingPropertyNames = new Set([...propertyList.children].map((li) => li.innerHTML));
+  const missingPropertyNames = [...propertyNames].filter((propertyName) => !existingPropertyNames.has(propertyName));
 
   if (missingPropertyNames.length > 0) {
-    missingPropertyNames.forEach(propertyName => {
-      propertyList.insertAdjacentHTML('beforeend', `<div class="${element}">${propertyName}</div>`);
+    missingPropertyNames.forEach((propertyName) => {
+      if (propertyName) {
+        propertyList.insertAdjacentHTML("beforeend", `<div class="${element}">${propertyName}</div>`);
+      }
     });
   }
 }
 
 function toggleDiv(event) {
-  if (["property", "event"].some(cls => event.target.classList.contains(cls))) {
+  if (["property", "event"].some((cls) => event.target.classList.contains(cls))) {
     event.target.classList.toggle("checked");
     saveFilterOrder();
   }
 }
 
 function deleteParam(event) {
-  if (event.target.className == 'cancel') {
+  if (event.target.className == "cancel") {
     const paramName = event.target.previousElementSibling.innerText;
     highLightValue = highLightValue.filter((e) => e !== paramName);
     event.target.parentElement.remove();
@@ -493,21 +498,21 @@ function resetOptions(type) {
       textarea.value = "";
     });
     saveSortOrder();
-    toggleModal("sort-modal", false)
-  } else if (type == 'filter') {
+    toggleModal("sort-modal", false);
+  } else if (type == "filter") {
     propertyFilter = [];
     eventFilter = [];
     highLightValue = [];
 
-    document.querySelectorAll('.property.checked').forEach((element) => {
-      element.classList.toggle('checked');
+    document.querySelectorAll(".property.checked").forEach((element) => {
+      element.classList.toggle("checked");
     });
-    document.querySelectorAll('.event.checked').forEach((element) => {
-      element.classList.toggle('checked');
+    document.querySelectorAll(".event.checked").forEach((element) => {
+      element.classList.toggle("checked");
     });
-    document.querySelector('.highLight-list').replaceChildren();
+    document.querySelector(".highLight-list").replaceChildren();
     saveFilterOrder();
-    toggleModal("filter-modal", false)
+    toggleModal("filter-modal", false);
   }
 }
 
@@ -534,35 +539,39 @@ function saveSortOrder() {
   data.forEach((value) => {
     createRequestList(value);
   });
-  console.log("정렬 옵션 저장 완료", cleanedSortObj);
   toggleModal("sort-modal", false);
 }
 
 function saveFilterOrder() {
   const checkedProperty = document.querySelectorAll(".property.checked");
   const checkedEvent = document.querySelectorAll(".event.checked");
-  const checkedHighLight = document.querySelectorAll('.parameter-name');
-  // const filterEvent = document.getElementById("filter-event").value;
+  const checkedHighLight = document.querySelectorAll(".parameter-name");
   const container = document.getElementById("ga4-data-container");
   var propertyFilteredArr = [];
   var eventFilteredArr = [];
   var highLightFilteredArr = [];
 
-  checkedProperty.forEach((e) => { propertyFilteredArr.push(e.innerHTML); })
-  checkedEvent.forEach((e) => { eventFilteredArr.push(e.innerHTML); })
-  checkedHighLight.forEach((e) => { highLightFilteredArr.push(e.innerHTML); })
+  checkedProperty.forEach((e) => {
+    propertyFilteredArr.push(e.innerHTML);
+  });
+  checkedEvent.forEach((e) => {
+    eventFilteredArr.push(e.innerHTML);
+  });
+  checkedHighLight.forEach((e) => {
+    highLightFilteredArr.push(e.innerHTML);
+  });
   propertyFilter = propertyFilteredArr;
   eventFilter = eventFilteredArr;
   highLightValue = highLightFilteredArr;
   container.innerHTML = "";
   eventIdx = 1;
   data.forEach((value) => {
-    createRequestList(value);
+    if (value.loadUrl) {
+      createLodingUrl(value.loadUrl);
+    } else {
+      createRequestList(value);
+    }
   });
-
-  // toggleModal("filter-modal", false);
-  console.log("saveFilterOrder:");
-  console.log(data);
 }
 
 function addTooltipListeners(elements) {
@@ -587,8 +596,6 @@ function addTooltipListeners(elements) {
 }
 
 function checkGTM(ids) {
-  // chrome.runtime.sendMessage({ action: "gtm" });
-
   const containerListElement = document.getElementById("gtm-container-list");
 
   if (containerListElement) {

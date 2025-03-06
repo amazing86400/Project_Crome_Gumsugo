@@ -26,23 +26,19 @@ chrome.runtime.onMessage.addListener((message) => {
 
     switch (message.action) {
       case "lock":
-        console.log("Lock 명령 수신");
         chrome.scripting.executeScript({ target: { tabId }, files: ["content.js"] }, () => {
           chrome.tabs.sendMessage(tabId, { action: "extract_lock" });
         });
         break;
       case "open":
-        console.log("Open 명령 수신");
         chrome.scripting.executeScript({ target: { tabId }, func: () => location.reload() });
         break;
       case "gtm":
-        console.log("gtm 명령 수신");
         chrome.scripting.executeScript({ target: { tabId }, files: ["content.js"] }, () => {
           chrome.tabs.sendMessage(tabId, { action: "extract_gtm" });
         });
         break;
       case "send_gtm_ids":
-        console.log("send_gtm_ids 명령 수신", message.data);
         chrome.runtime.sendMessage({ action: "gtm_containers", tabId, data: message.data });
         break;
     }
@@ -54,7 +50,6 @@ chrome.runtime.onMessage.addListener((message) => {
 chrome.tabs.onRemoved.addListener((tabId) => {
   if (tabRequestData[tabId]) {
     delete tabRequestData[tabId];
-    console.log(`탭 ${tabId}이 닫힘. 데이터 삭제 완료`);
   }
 });
 
@@ -177,7 +172,6 @@ function parseProductString(productString) {
     } else if (key.startsWith("v") && lastKey) {
       result.push({ key: convertItem[lastKey] || lastKey, value });
       lastKey = "";
-      // 실제로 string으로 수집할 경우 어떡하지?
     } else if (["lp", "qt", "pr", "ds"].includes(key)) {
       result.push({ key: convertItem[key] || key, value: Number(value) });
     } else {
