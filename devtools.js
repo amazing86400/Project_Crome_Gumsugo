@@ -309,7 +309,6 @@ document.addEventListener("DOMContentLoaded", () => {
     filterModalBackground: document.querySelector("#filter-modal > .modal-background"),
     filterModalClose: document.querySelector("#filter-modal > div.modal-area > div > div.modal-close"),
     filterReset: document.getElementById("filter-reset"),
-    filterSave: document.getElementById("filter-save"),
 
     propertyListDiv: document.querySelector(".property-list"),
     eventListDiv: document.querySelector(".event-list"),
@@ -342,6 +341,7 @@ document.addEventListener("DOMContentLoaded", () => {
   elements.sortModalBackground.addEventListener("click", (e) => e.target === elements.sortModalBackground && toggleModal("sort-modal", false));
   elements.sortModalClose.addEventListener("click", () => toggleModal("sort-modal", false));
   elements.sortReset.addEventListener("click", () => resetOptions("sort"));
+  elements.sortSave.addEventListener("click", saveSortOrder);
 
   elements.filterButton.addEventListener("click", () => toggleModal("filter-modal", true));
   elements.filterModalBackground.addEventListener("click", (e) => e.target === elements.filterModalBackground && toggleModal("filter-modal", false));
@@ -537,7 +537,11 @@ function saveSortOrder() {
   container.innerHTML = "";
   eventIdx = 1;
   data.forEach((value) => {
-    createRequestList(value);
+    if (value.loadUrl) {
+      createLodingUrl(value.loadUrl);
+    } else {
+      createRequestList(value);
+    }
   });
   toggleModal("sort-modal", false);
 }
