@@ -103,13 +103,13 @@ function createRequestList(data) {
 
     const basicInfo = [
       { key: "GA4 Property ID", value: event.tid },
-      { key: "Timestamp", value: event._p },
-      { key: "Client ID", value: event.cid },
-      { key: "Session ID", value: event.sid },
+      { key: "Event Name", value: event.en },
+      { key: "Page Title", value: event.dt },
       { key: "Page URL", value: event.dl },
       { key: "Referrer", value: event.dr },
-      { key: "Page Title", value: event.dt },
-      { key: "Event Name", value: event.en },
+      { key: "Client ID", value: event.cid },
+      { key: "Session ID", value: event.sid },
+      { key: "Timestamp", value: event._p },
     ];
     const basicInfoSection = createSublist("General", basicInfo);
     if (basicInfoSection) details.appendChild(basicInfoSection);
