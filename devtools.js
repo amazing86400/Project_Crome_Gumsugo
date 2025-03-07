@@ -3,41 +3,37 @@ let isLock = false;
 let cleanedSortObj = {};
 let propertyFilter = [];
 let eventFilter = [];
-let highLightValue = [];
-let data = [];
-let eventIdx = 1;
+let highLightValues = [];
+let eventData = [];
+let eventIndex = 1;
 
-chrome.devtools.panels.create("GubGub", "", "devtools.html", function (panel) {
+chrome.devtools.panels.create("GubGub", "", "devtools.html", () => {
   console.log("GubGub DevTools 패널이 생성됨");
 });
 
 const port = chrome.runtime.connect({ name: "devtools" });
-
 port.onDisconnect.addListener(() => {
-  console.log("DevTools 패널이 닫혔으므로 메시지 전송을 중단합니다.");
+  console.log("DevTools 패널이 닫혔음");
 });
 
 chrome.runtime.onMessage.addListener((message) => {
-  if ((message.action !== "gtm_containers" && message.action !== "ga4_event" && message.action !== "navigation") || message.tabId !== chrome.devtools.inspectedWindow.tabId) return;
+  if (!["gtm_containers", "ga4_event", "navigation"].includes(message.action) || message.tabId !== chrome.devtools.inspectedWindow.tabId) return;
 
   if (message.action === "ga4_event") {
-    const event = message.data;
-    data.push(event);
-    createRequestList(event);
+    eventData.push(message.data);
+    createRequestList(message.data);
   } else if (message.action === "gtm_containers") {
     checkGTM(message.data);
   } else if (message.action === "navigation") {
-    data.push({ loadUrl: message.data });
-    createLodingUrl(message.data);
+    eventData.push({ loadUrl: message.data });
+    createLoadingUrl(message.data);
   }
 });
 
-function createLodingUrl(data) {
-  eventIdx = 1;
+function createLoadingUrl(url) {
+  eventIndex = 1;
 
-  const url = data;
   const ga4Container = document.getElementById("ga4-data-container");
-
   const requestEntry = document.createElement("div");
   requestEntry.classList.add("ga4-page-url");
   requestEntry.innerHTML = `
@@ -47,8 +43,7 @@ function createLodingUrl(data) {
   ga4Container.appendChild(requestEntry);
 }
 
-function createRequestList(data) {
-  const event = data;
+function createRequestList(event) {
   const ga4Container = document.getElementById("ga4-data-container");
   const date = new Date().toLocaleString();
 
@@ -59,17 +54,16 @@ function createRequestList(data) {
     event.up = sortParams(event.up, cleanedSortObj.userParam);
 
     Object.entries(event).forEach(([key, value]) => {
-      if (key.includes("pr")) {
+      if (key.startsWith("pr")) {
         event[key] = sortParams(value, cleanedSortObj.itemParam);
       }
     });
 
     const requestEntry = document.createElement("div");
     requestEntry.classList.add("ga4-request");
-
     requestEntry.innerHTML = `
       <div class="ga4-request-row">
-        <span class="ga4-event-index">${eventIdx}</span>
+        <span class="ga4-event-index">${eventIndex}</span>
         <div class="ga4-event-name">
           <span class="label">
             <div event-name="${event.en}">${event.en}</div>
@@ -89,10 +83,9 @@ function createRequestList(data) {
       </div>
     `;
 
-    eventIdx++;
+    eventIndex++;
 
     const copyButton = requestEntry.querySelector(".copy-btn");
-
     copyButton.addEventListener("click", (e) => {
       e.stopPropagation();
       copyToClipboard(e.target);
@@ -158,12 +151,12 @@ function sortParams(paramArray, sortKeys = [], prefix = "") {
 }
 
 function copyToClipboard(element) {
-  const parentsEle = element.closest(".ga4-request");
-  const tables = ["general", "custom-dimension", "custom-metric", "transaction", "item"];
-  const formattedText = tables
-    .flatMap((tableId) => {
-      const table = parentsEle.querySelectorAll("." + tableId);
-      return Array.from(table)
+  const parent = element.closest(".ga4-request");
+  const tableSelectors = ["general", "custom-dimension", "custom-metric", "transaction", "item"];
+
+  const formattedText = tableSelectors
+    .flatMap((selector) => {
+      return Array.from(parent.querySelectorAll("." + selector))
         .filter((tbody) => tbody.children.length > 0)
         .map((tbody) => formatTable(tbody));
     })
@@ -171,8 +164,9 @@ function copyToClipboard(element) {
 
   if (formattedText == "") {
     alert("복사할 데이터가 없습니다.");
-    return false;
+    return;
   }
+
   copyTextToClipboard(formattedText);
 }
 
@@ -210,17 +204,15 @@ function createTable(data, title) {
       const row = document.createElement("tr");
       row.innerHTML = `<td>${key}</td><td>${value}</td>`;
 
-      if (highLightValue.includes(key)) {
+      if (highLightValues.includes(key)) {
         row.classList.add("highlight");
       }
       tbody.appendChild(row);
     }
   });
-  if (tbody.childElementCount == 0) {
-    return;
-  }
-  table.appendChild(tbody);
+  if (tbody.childElementCount == 0) return;
 
+  table.appendChild(tbody);
   table.addEventListener("click", (e) => e.stopPropagation());
 
   return table;
@@ -239,14 +231,14 @@ function createSublist(title, data, formatter) {
   <div class="ga4-sublist-content"></div>
 `;
 
-  const sublistContent = sublist.querySelector(".ga4-sublist-content");
+  const content = sublist.querySelector(".ga4-sublist-content");
 
   if (formatter) {
-    formatter(sublistContent, data);
+    formatter(content, data);
   } else {
     const table = createTable(data, title);
     if (table) {
-      sublistContent.appendChild(table);
+      content.appendChild(table);
     } else {
       return;
     }
@@ -359,16 +351,16 @@ document.addEventListener("DOMContentLoaded", () => {
   addTooltipListeners(elements);
 
   elements.highLightList.addEventListener("click", deleteParam);
-
   elements.highLight.addEventListener("keypress", (e) => {
     if (e.key === "Enter" && elements.highLight.value.trim() !== "") {
-      if (!highLightValue.includes(elements.highLight.value)) {
-        highLightValue.push(elements.highLight.value);
+      const value = elements.highLight.value;
+      if (!highLightValues.includes(value)) {
+        highLightValues.push(value);
         elements.highLightList.insertAdjacentHTML(
           "beforeend",
           `
           <div class="high-light">
-            <div class="parameter-name">${elements.highLight.value}</div>
+            <div class="parameter-name">${value}</div>
             <div class="cancel">&times;</div>
           </div>
         `
@@ -379,7 +371,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  data = new Proxy([], {
+  eventData = new Proxy([], {
     set(target, property, value) {
       target[property] = value;
       if (!isNaN(property)) {
@@ -424,7 +416,7 @@ function toggleLock({ lockButton, lockIcon, playButton }) {
 }
 
 function clearGA4Data(container) {
-  data = new Proxy([], {
+  eventData = new Proxy([], {
     set(target, property, value) {
       target[property] = value;
       if (!isNaN(property)) {
@@ -435,7 +427,7 @@ function clearGA4Data(container) {
     },
   });
 
-  eventIdx = 1;
+  eventIndex = 1;
   container.innerHTML = "";
 
   const propertyList = document.querySelector(".property-list");
@@ -462,7 +454,7 @@ function toggleModal(element, open) {
 
 function createList(element) {
   const propertyList = document.querySelector(`.${element}-list`);
-  const propertyNames = element == "property" ? new Set(data.map((i) => i.tid)) : new Set(data.map((i) => i.en));
+  const propertyNames = element == "property" ? new Set(eventData.map((i) => i.tid)) : new Set(eventData.map((i) => i.en));
   const existingPropertyNames = new Set([...propertyList.children].map((li) => li.innerHTML));
   const missingPropertyNames = [...propertyNames].filter((propertyName) => !existingPropertyNames.has(propertyName));
 
@@ -485,7 +477,7 @@ function toggleDiv(event) {
 function deleteParam(event) {
   if (event.target.className == "cancel") {
     const paramName = event.target.previousElementSibling.innerText;
-    highLightValue = highLightValue.filter((e) => e !== paramName);
+    highLightValues = highLightValues.filter((e) => e !== paramName);
     event.target.parentElement.remove();
     saveFilterOrder();
   }
@@ -498,22 +490,18 @@ function resetOptions(type) {
       textarea.value = "";
     });
     saveSortOrder();
-    toggleModal("sort-modal", false);
   } else if (type == "filter") {
     propertyFilter = [];
     eventFilter = [];
-    highLightValue = [];
+    highLightValues = [];
 
-    document.querySelectorAll(".property.checked").forEach((element) => {
-      element.classList.toggle("checked");
-    });
-    document.querySelectorAll(".event.checked").forEach((element) => {
+    document.querySelectorAll(".property.checked, .event.checked").forEach((element) => {
       element.classList.toggle("checked");
     });
     document.querySelector(".highLight-list").replaceChildren();
     saveFilterOrder();
-    toggleModal("filter-modal", false);
   }
+  toggleModal(`${type}-modal`, false);
 }
 
 function saveSortOrder() {
@@ -533,16 +521,7 @@ function saveSortOrder() {
     itemParam: cleanArray(itemParams),
   };
 
-  const container = document.getElementById("ga4-data-container");
-  container.innerHTML = "";
-  eventIdx = 1;
-  data.forEach((value) => {
-    if (value.loadUrl) {
-      createLodingUrl(value.loadUrl);
-    } else {
-      createRequestList(value);
-    }
-  });
+  refreshGA4Data();
   toggleModal("sort-modal", false);
 }
 
@@ -550,7 +529,6 @@ function saveFilterOrder() {
   const checkedProperty = document.querySelectorAll(".property.checked");
   const checkedEvent = document.querySelectorAll(".event.checked");
   const checkedHighLight = document.querySelectorAll(".parameter-name");
-  const container = document.getElementById("ga4-data-container");
   var propertyFilteredArr = [];
   var eventFilteredArr = [];
   var highLightFilteredArr = [];
@@ -566,16 +544,17 @@ function saveFilterOrder() {
   });
   propertyFilter = propertyFilteredArr;
   eventFilter = eventFilteredArr;
-  highLightValue = highLightFilteredArr;
+  highLightValues = highLightFilteredArr;
+
+  refreshGA4Data();
+}
+
+function refreshGA4Data() {
+  const container = document.getElementById("ga4-data-container");
   container.innerHTML = "";
-  eventIdx = 1;
-  data.forEach((value) => {
-    if (value.loadUrl) {
-      createLodingUrl(value.loadUrl);
-    } else {
-      createRequestList(value);
-    }
-  });
+  eventIndex = 1;
+
+  eventData.forEach((value) => (value.loadUrl ? createLoadingUrl(value.loadUrl) : createRequestList(value)));
 }
 
 function addTooltipListeners(elements) {

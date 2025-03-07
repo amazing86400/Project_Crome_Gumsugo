@@ -10,10 +10,10 @@ chrome.runtime.onConnect.addListener((port) => {
   }
 });
 
-chrome.webNavigation.onCommitted.addListener((details) => {
-  if (details.frameId !== 0) return;
-
-  chrome.runtime.sendMessage({ action: "navigation", tabId: details.tabId, data: details.url });
+chrome.webNavigation.onCommitted.addListener(({ frameId, tabId, url }) => {
+  if (frameId === 0) {
+    chrome.runtime.sendMessage({ action: "navigation", tabId, data: url });
+  }
 });
 
 chrome.runtime.onMessage.addListener((message) => {
@@ -55,8 +55,8 @@ chrome.tabs.onRemoved.addListener((tabId) => {
 
 chrome.webRequest.onBeforeRequest.addListener(
   (details) => {
-    if (details.url.includes("stats.g.doubleclick.net") || !details.url.includes("/g/collect?v=2") || details.initiator.startsWith("chrome-extension://")) return;
-    if (!details.tabId || details.tabId < 0) return;
+    if (!details.tabId || details.tabId < 0 || details.url.includes("stats.g.doubleclick.net") || !details.url.includes("/g/collect?v=2") || details.initiator?.startsWith("chrome-extension://"))
+      return;
 
     tabRequestData[details.tabId] = tabRequestData[details.tabId] || [];
 

@@ -7,7 +7,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         "click",
         (event) => {
           event.preventDefault();
-          console.log("페이지 이동 방지됨:", event.target.href);
         },
         true
       );
@@ -21,8 +20,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         const match = script.src.match(/GTM-[\w\d]+/);
         return match ? match[0] : "Unknown ID";
       });
-
-      console.log("GTM Container ID:", gtmIds);
 
       chrome.runtime.sendMessage({ action: "send_gtm_ids", data: gtmIds });
       break;
