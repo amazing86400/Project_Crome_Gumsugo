@@ -7,8 +7,8 @@ let highLightValues = [];
 let eventData = [];
 let eventIndex = 1;
 
-chrome.devtools.panels.create("GubGub", "", "devtools.html", () => {
-  console.log("GubGub DevTools 패널이 생성됨");
+chrome.devtools.panels.create("검수고", "", "devtools.html", () => {
+  console.log("검수고 DevTools 패널이 생성됨");
 });
 
 const port = chrome.runtime.connect({ name: "devtools" });
