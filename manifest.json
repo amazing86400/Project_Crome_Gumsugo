@@ -1,8 +1,14 @@
 {
   "manifest_version": 3,
   "name": "검수고",
-  "version": "1.2",
+  "version": "1.0",
   "description": "GA4 이벤트 추적 및 검수를 위한 크롬 확장 프로그램",
+  "icons": {
+    "16": "images/icon-16.png",
+    "32": "images/icon-32.png",
+    "48": "images/icon-48.png",
+    "128": "images/icon-128.png"
+  },
   "background": {
     "service_worker": "background.js"
   },
