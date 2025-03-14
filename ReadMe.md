@@ -45,6 +45,7 @@ Chrome 웹 스토어에서 확장 프로그램을 다운로드하고 설치할 �
 ## 🛠 사용 방법
 
 1️⃣ Chrome 개발자 도구(DevTools) 열기
+<br>
 F12 또는 Ctrl + Shift + I (Cmd + Option + I on Mac)
 
 2️⃣ "검수고" 패널 클릭
