@@ -364,7 +364,7 @@ button svg:hover g {
 
 .ga4-request-row {
   display: flex;
-  padding: 5px;
+  padding: 5px 10px 5px 5px;
   cursor: pointer;
   user-select: none;
   justify-content: space-around;
@@ -452,9 +452,10 @@ button svg:hover g {
 .copy-btn-container {
   width: 50px;
   text-align: right;
+  line-height: 0px;
 }
 
-.copy-btn {
+.copy-btn, .check {
   width: 16px;
   height: 16px;
   cursor: pointer;
@@ -465,6 +466,14 @@ button svg:hover g {
 
 .copy-btn:hover {
   opacity: 1;
+}
+
+.copy-btn {
+  content: url('./images/copy.png');
+}
+
+.check {
+  content: url('./images/checkmark.png');
 }
 
 .ga4-sublist {

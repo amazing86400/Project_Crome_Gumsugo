@@ -167,7 +167,7 @@ function copyToClipboard(element) {
     return;
   }
 
-  copyTextToClipboard(formattedText);
+  copyTextToClipboard(formattedText, element);
 }
 
 function formatTable(table) {
@@ -181,13 +181,17 @@ function formatTable(table) {
     .join("\n");
 }
 
-function copyTextToClipboard(text) {
+function copyTextToClipboard(text, element) {
   const textarea = document.createElement("textarea");
+  const checkedEle = document.querySelectorAll('.check');
+  const Element = element;
   textarea.value = text;
   document.body.appendChild(textarea);
   textarea.select();
   document.execCommand("copy");
   document.body.removeChild(textarea);
+  checkedEle.forEach((e) => { e.classList.remove('check')});
+  Element.classList.add('check');
 }
 
 function createTable(data, title) {
