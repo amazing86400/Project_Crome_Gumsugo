@@ -408,6 +408,8 @@ button svg:hover g {
 
 .ga4-event-index {
   width: 16px;
+  color: #030303;
+  font-weight: 500;
 }
 
 .ga4-event-name,
