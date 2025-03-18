@@ -59,6 +59,41 @@ function createRequestList(event) {
       }
     });
 
+    if (event.up.length > 0) {
+      const ga4Container = document.getElementById("ga4-data-container");
+      const requestEntry = document.createElement("div");
+
+      requestEntry.classList.add("user-property-message");
+      requestEntry.innerHTML = `
+          <div>${event.tid}의 사용자 속성이 변경되었습니다.</div>
+          <div class="tooltip2"></div>
+      `;
+      ga4Container.appendChild(requestEntry);
+
+      const tooltip2 = requestEntry.querySelector('.tooltip2');
+      tooltip2.innerHTML = event.up.map(item => `
+        <div>
+          <span class="tooltip-key">${item.key}</span>
+          <span class="tooltip-colon">:</span>
+          <span class="tooltip-value">"${item.value}"</span>
+        </div>
+      `).join("");
+
+
+      requestEntry.addEventListener("mouseenter", () => {
+        tooltip2.style.visibility = "visible";
+      });
+      
+      requestEntry.addEventListener("mousemove", (event) => {
+        tooltip2.style.top = `${event.clientY + 10}px`; // 마우스 아래 10px 위치
+        tooltip2.style.left = `${event.clientX + 10}px`; // 마우스 오른쪽 10px 위치
+      });
+      
+      requestEntry.addEventListener("mouseleave", () => {
+        tooltip2.style.visibility = "hidden";
+      });
+    };
+
     const requestEntry = document.createElement("div");
     requestEntry.classList.add("ga4-request");
     requestEntry.innerHTML = `
@@ -327,6 +362,9 @@ document.addEventListener("DOMContentLoaded", () => {
     ga4Container: document.getElementById("ga4-data-container"),
 
     tooltip: document.getElementById("tooltip"),
+
+    tooltip2: document.querySelector('.tooltip2'),
+    propertyMessage: document.querySelector('.user-property-message'),
   };
 
   elements.playButton.addEventListener("click", () => togglePlay(elements));
@@ -385,6 +423,8 @@ document.addEventListener("DOMContentLoaded", () => {
       return true;
     },
   });
+
+
 });
 
 function togglePlay({ playButton, playIcon, lockButton }) {

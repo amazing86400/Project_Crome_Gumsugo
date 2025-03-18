@@ -101,6 +101,10 @@ body {
   margin-top: 30px;
 }
 
+.ga4-data-container {
+  padding-bottom: 20px;
+}
+
 .tool-btn {
   background: none;
   border: none;
@@ -320,7 +324,7 @@ button svg:hover g {
   background-color: #ededed;
 }
 
-.ga4-page-url {
+.ga4-page-url, .user-property-message {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -337,6 +341,37 @@ button svg:hover g {
 
 .ga4-page-url > div {
   display: inline;
+}
+
+.user-property-message {
+  color: #ff8200;
+}
+
+.tooltip2 {
+  position: absolute;
+  background-color: white;
+  border: 1px solid black;
+  padding: 5px 10px;
+  border-radius: 5px;
+  font-size: 12px;
+  visibility: hidden;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.tooltip-key {
+  color: #940f56;
+  font-weight: 600;
+}
+
+.tooltip-colon {
+  color: black;
+  font-weight: 500;
+}
+
+.tooltip-value {
+  color: #de3730;
+  font-weight: 500;
 }
 
 .ga4-request:hover {
