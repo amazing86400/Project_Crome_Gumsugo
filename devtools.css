@@ -450,6 +450,18 @@ button svg:hover g {
   color: #3b4351;
 }
 
+.toggle-img {
+  line-height: 0px;
+}
+
+.toggle-img::before {
+  content: url(./images/down.png);
+}
+
+.down {
+  content: url(./images/up.png);
+}
+
 .googleAnalytics::before {
   content: url(./images/ga4.png);
   padding: 0.5em;

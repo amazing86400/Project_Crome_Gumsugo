@@ -99,6 +99,7 @@ function createRequestList(event) {
     requestEntry.innerHTML = `
       <div class="ga4-request-row">
         <span class="ga4-event-index">${eventIndex}</span>
+        <div class="toggle-img"></div>
         <div class="ga4-event-name">
           <span class="label">
             <div event-name="${event.en}">${event.en}</div>
@@ -167,6 +168,7 @@ function createRequestList(event) {
     requestEntry.addEventListener("click", (e) => {
       if (e.target.closest(".ga4-request-row")) {
         requestEntry.classList.toggle("expanded");
+        requestEntry.querySelector('.toggle-img').classList.toggle('down');
       }
     });
   }
