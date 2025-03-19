@@ -84,9 +84,24 @@ function createRequestList(event) {
         tooltip2.style.visibility = "visible";
       });
       
-      requestEntry.addEventListener("mousemove", (e) => {
-        tooltip2.style.left = e.pageX + 10 + "px"; // 마우스 커서 오른쪽으로 10px
-        tooltip2.style.top = e.pageY + 10 + "px"; // 마우스 커서 아래로 10px
+      requestEntry.addEventListener("mousemove", (event) => {
+        const tooltipWidth = tooltip2.offsetWidth;
+        const tooltipHeight = tooltip2.offsetHeight;
+        const margin = 10; // 마우스와 툴팁 간격
+      
+        let posX = event.pageX + margin;
+        let posY = event.pageY + margin;
+      
+        // 👉 툴팁이 화면 밖으로 나가면 반대쪽 배치
+        if (posX + tooltipWidth > window.innerWidth + window.scrollX) {
+          posX = event.pageX - tooltipWidth - margin;
+        }
+        if (posY + tooltipHeight > window.innerHeight + window.scrollY) {
+          posY = event.pageY - tooltipHeight - margin;
+        }
+      
+        tooltip2.style.left = `${posX}px`;
+        tooltip2.style.top = `${posY}px`;
       });
       
       requestEntry.addEventListener("mouseleave", () => {

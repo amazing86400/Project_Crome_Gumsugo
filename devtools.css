@@ -328,7 +328,7 @@ button svg:hover g {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  width: 100%;
+  /* width: 100%; */
   padding: 0.3em 2em;
   background-color: #fff;
   font-size: 0.9em;
@@ -354,10 +354,15 @@ button svg:hover g {
   padding: 5px 10px;
   border-radius: 5px;
   font-size: 12px;
+  min-width: 230px;
+  max-width: 40vw;
   visibility: hidden;
   white-space: nowrap;
   pointer-events: none;
   z-index: 1000;
+  word-wrap: break-word;
+  white-space: normal;
+  overflow-wrap: break-word;
 }
 
 .tooltip-key {
