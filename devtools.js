@@ -84,9 +84,9 @@ function createRequestList(event) {
         tooltip2.style.visibility = "visible";
       });
       
-      requestEntry.addEventListener("mousemove", (event) => {
-        tooltip2.style.top = `${event.clientY + 10}px`; // 마우스 아래 10px 위치
-        tooltip2.style.left = `${event.clientX + 10}px`; // 마우스 오른쪽 10px 위치
+      requestEntry.addEventListener("mousemove", (e) => {
+        tooltip2.style.left = e.pageX + 10 + "px"; // 마우스 커서 오른쪽으로 10px
+        tooltip2.style.top = e.pageY + 10 + "px"; // 마우스 커서 아래로 10px
       });
       
       requestEntry.addEventListener("mouseleave", () => {

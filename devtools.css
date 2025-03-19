@@ -357,6 +357,7 @@ button svg:hover g {
   visibility: hidden;
   white-space: nowrap;
   pointer-events: none;
+  z-index: 1000;
 }
 
 .tooltip-key {
