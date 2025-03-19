@@ -561,8 +561,8 @@ button svg:hover g {
   height: 60%;
   height: 0px;
   inset: 0;
+  top: 50px;
   margin: auto;
-  justify-content: center;
   align-items: center;
   z-index: 2;
 }
@@ -575,6 +575,11 @@ button svg:hover g {
   z-index: 1;
   width: 100%;
   height: 100%;
+}
+
+#sort-modal .modal-area {
+  height: 83vh;
+  max-height: 516px;
 }
 
 .modal-area {
@@ -594,6 +599,7 @@ button svg:hover g {
   border-radius: 4px;
   box-shadow: rgba(0, 0, 0, 0.16) 0px 3px 6px, rgba(0, 0, 0, 0.23) 0px 3px 6px;
   z-index: 2;
+  overflow-y: auto;
 }
 
 .remove {
