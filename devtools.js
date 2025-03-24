@@ -70,28 +70,31 @@ function createRequestList(event) {
       `;
       ga4Container.appendChild(requestEntry);
 
-      const tooltip2 = requestEntry.querySelector('.tooltip2');
-      tooltip2.innerHTML = event.up.map(item => `
+      const tooltip2 = requestEntry.querySelector(".tooltip2");
+      tooltip2.innerHTML = event.up
+        .map(
+          (item) => `
         <div>
           <span class="tooltip-key">${item.key}</span>
           <span class="tooltip-colon">:</span>
           <span class="tooltip-value">"${item.value}"</span>
         </div>
-      `).join("");
-
+      `
+        )
+        .join("");
 
       requestEntry.addEventListener("mouseenter", () => {
         tooltip2.style.visibility = "visible";
       });
-      
+
       requestEntry.addEventListener("mousemove", (event) => {
         const tooltipWidth = tooltip2.offsetWidth;
         const tooltipHeight = tooltip2.offsetHeight;
         const margin = 10; // 마우스와 툴팁 간격
-      
+
         let posX = event.pageX + margin;
         let posY = event.pageY + margin;
-      
+
         // 👉 툴팁이 화면 밖으로 나가면 반대쪽 배치
         if (posX + tooltipWidth > window.innerWidth + window.scrollX) {
           posX = event.pageX - tooltipWidth - margin;
@@ -99,15 +102,15 @@ function createRequestList(event) {
         if (posY + tooltipHeight > window.innerHeight + window.scrollY) {
           posY = event.pageY - tooltipHeight - margin;
         }
-      
+
         tooltip2.style.left = `${posX}px`;
         tooltip2.style.top = `${posY}px`;
       });
-      
+
       requestEntry.addEventListener("mouseleave", () => {
         tooltip2.style.visibility = "hidden";
       });
-    };
+    }
 
     const requestEntry = document.createElement("div");
     requestEntry.classList.add("ga4-request");
@@ -183,7 +186,7 @@ function createRequestList(event) {
     requestEntry.addEventListener("click", (e) => {
       if (e.target.closest(".ga4-request-row")) {
         requestEntry.classList.toggle("expanded");
-        requestEntry.querySelector('.toggle-img').classList.toggle('down');
+        requestEntry.querySelector(".toggle-img").classList.toggle("down");
       }
     });
   }
@@ -235,15 +238,17 @@ function formatTable(table) {
 
 function copyTextToClipboard(text, element) {
   const textarea = document.createElement("textarea");
-  const checkedEle = document.querySelectorAll('.check');
+  const checkedEle = document.querySelectorAll(".check");
   const Element = element;
   textarea.value = text;
   document.body.appendChild(textarea);
   textarea.select();
   document.execCommand("copy");
   document.body.removeChild(textarea);
-  checkedEle.forEach((e) => { e.classList.remove('check')});
-  Element.classList.add('check');
+  checkedEle.forEach((e) => {
+    e.classList.remove("check");
+  });
+  Element.classList.add("check");
 }
 
 function createTable(data, title) {
@@ -380,8 +385,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     tooltip: document.getElementById("tooltip"),
 
-    tooltip2: document.querySelector('.tooltip2'),
-    propertyMessage: document.querySelector('.user-property-message'),
+    tooltip2: document.querySelector(".tooltip2"),
+    propertyMessage: document.querySelector(".user-property-message"),
   };
 
   elements.playButton.addEventListener("click", () => togglePlay(elements));
@@ -440,8 +445,6 @@ document.addEventListener("DOMContentLoaded", () => {
       return true;
     },
   });
-
-
 });
 
 function togglePlay({ playButton, playIcon, lockButton }) {
