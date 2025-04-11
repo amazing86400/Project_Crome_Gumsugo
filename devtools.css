@@ -98,7 +98,7 @@ body {
 }
 
 .section.data {
-  margin-top: 30px;
+  margin-top: 31px;
 }
 
 .ga4-data-container {
@@ -385,7 +385,7 @@ button svg:hover g {
   background-color: #bbdefb !important;
 }
 
-.ga4-request.expanded {
+.ga4-request.expanded > summary {
   background-color: #bbdefb;
 }
 
@@ -745,4 +745,11 @@ input:focus {
 
 #filter-modal input {
   height: 20px;
+}
+
+summary {
+  position: sticky;
+  top: 30px;
+  background-color: white;
+  z-index: 10;
 }

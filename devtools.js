@@ -115,26 +115,30 @@ function createRequestList(event) {
     const requestEntry = document.createElement("div");
     requestEntry.classList.add("ga4-request");
     requestEntry.innerHTML = `
-      <div class="ga4-request-row">
-        <span class="ga4-event-index">${eventIndex}</span>
-        <div class="toggle-img"></div>
-        <div class="ga4-event-name">
-          <span class="label">
-            <div event-name="${event.en}">${event.en}</div>
-          </span>
-          <div class="googleAnalytics">Google Analytics 4</div>
-        </div>
-        <span class="ga4-property-id">${event.tid}</span>
-        <div class="ga4-title-name">
-          <span class="name">
-            <div>${event.dt}</div>
-          </span>
-        </div>
-        <span class="ga4-event-time">${date}</span>
-        <div class="copy-btn-container">
-          <img src="./images/copy.png" class="copy-btn" alt="Copy All" title="Copy all" />
+    <summary>
+      <div class="columns">
+        <div class="ga4-request-row">
+          <span class="ga4-event-index">${eventIndex}</span>
+          <div class="toggle-img"></div>
+          <div class="ga4-event-name">
+            <span class="label">
+              <div event-name="${event.en}">${event.en}</div>
+            </span>
+            <div class="googleAnalytics">Google Analytics 4</div>
+          </div>
+          <span class="ga4-property-id">${event.tid}</span>
+          <div class="ga4-title-name">
+            <span class="name">
+              <div>${event.dt}</div>
+            </span>
+          </div>
+          <span class="ga4-event-time">${date}</span>
+          <div class="copy-btn-container">
+            <img src="./images/copy.png" class="copy-btn" alt="Copy All" title="Copy all" />
+          </div>
         </div>
       </div>
+    </summary>
     `;
 
     eventIndex++;
