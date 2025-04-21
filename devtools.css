@@ -751,5 +751,5 @@ summary {
   position: sticky;
   top: 30px;
   background-color: white;
-  z-index: 10;
+  /* z-index: 10; */
 }
